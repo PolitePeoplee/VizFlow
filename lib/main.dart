@@ -46,6 +46,15 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   int widgetCount = 0; // Счетчик виджетов
   int alignInt = 0;
 
+  double dialogWidth = 300;
+  double dialogHeight = 480;
+
+  bool HandCircle = false;
+  bool showFields = false;
+  bool showNewWidgets = false;
+  final TextEditingController _countController = TextEditingController();
+  List<TextEditingController> _textControllers = [];
+
 // Позиции виджетов
   bool _isPlusWidgetMoved = false; // Флаг для отслеживания смещения
   List<Widget> greenWidgets = []; // Список зеленых виджетов
@@ -124,6 +133,27 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     // Например, вы можете использовать метод для сохранения в файл
     print(jsonData); // Для проверки выведем в консоль
   }
+
+int _fieldCount = 0;
+
+  void _updateFields() {
+    setState(() {
+      int newCount = int.tryParse(_countController.text) ?? 0;
+
+      // Удаляем лишние контроллеры
+      if (newCount < _textControllers.length) {
+        _textControllers.removeRange(newCount, _textControllers.length);
+      } else {
+        // Добавляем недостающие контроллеры
+        for (int i = _textControllers.length; i < newCount; i++) {
+          _textControllers.add(TextEditingController());
+        }
+      }
+
+      _fieldCount = newCount;
+    });
+  }
+
 Widget _buildGreenWidget(int index) {
     return Align(
       alignment: setAlignment(index),
@@ -237,9 +267,10 @@ Widget _buildGreenWidget(int index) {
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
             ),
-            style: GoogleFonts.roboto(
+            style: TextStyle(
               fontSize: 48,
               fontWeight: FontWeight.w400,
+              fontFamily: 'Roboto', // Дефолтный шрифт
             ),
           ),
           centerTitle: true,
@@ -331,8 +362,7 @@ Widget _buildGreenWidget(int index) {
     TextEditingController firstController = TextEditingController(); // Контроллер для первого TextField
     TextEditingController secondController = TextEditingController(); // Контроллер для второго TextField
 
-    double dialogWidth = 300;
-    double dialogHeight = 480;
+    
     bool _isWidgetsVisible = true;
     bool _isLastWidget = false;
     showDialog(
@@ -415,8 +445,10 @@ Widget _buildGreenWidget(int index) {
                           controller: textController,
                           textAlign: TextAlign.center,
                           decoration: InputDecoration(
-                            labelText: 'Введите название',
+                            hintText: 'Введите название',
+                            hintStyle: TextStyle(color: Colors.black), // Цвет текста подсказки
                             border: InputBorder.none,
+                            contentPadding: EdgeInsets.symmetric(vertical: 13), // Отступы по вертикали
                           ),
                         ),
                       ),
@@ -488,6 +520,10 @@ Widget _buildGreenWidget(int index) {
                         ),
                       ),
                     ),
+
+                    
+
+
                     // Новый прямоугольник для выбора источника данных
                     AnimatedPositioned(
                       duration: Duration(milliseconds: 300),
@@ -559,6 +595,102 @@ Widget _buildGreenWidget(int index) {
                       ),
                     ),
                   ],
+                  if (HandCircle) ...[
+                    Column(
+                children: [
+                   Visibility(
+                      visible: HandCircle,
+                      child:  Positioned(
+                        top: 25,
+                        left: 25,
+                        child: Container(
+                          width: 250,
+                          height: 40,
+
+                          child: Text('Введите название сектора и значение',
+                              textAlign: TextAlign.center, // Выравнивание текста
+                              style: TextStyle(
+                                fontSize: 14, // Размер шрифта
+                                color: Colors.black, // Цвет текста
+                              ),
+                            ),
+                        ),
+                      ),
+                  ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 30.0), // Отступы по горизонтали
+                          child:Divider(
+                            color: Colors.black, // Разделитель
+                            thickness: 0.5,
+                              ),
+                            ),
+                          ],
+                    ),
+                    // Positioned(
+                    //   top: 85,
+                    //   right: 25,
+                    //   child: Visibility(
+                    //     visible: !_isWidgetsVisible ? true : false,
+                    //     child: Container(
+                    //       width: 186,
+                    //       height: 40,
+                    //       decoration: BoxDecoration(
+                    //         color: Color(0xFFDDFFE4),
+                    //         borderRadius: BorderRadius.circular(10),
+                    //         border: Border.all(
+                    //           color: Color(0x65656587),
+                    //           width: 1,
+                    //         ),
+                    //       ),
+                    //       child: TextField(
+                    //         textAlign: TextAlign.center,
+                    //         controller: firstController,
+                    //         decoration: InputDecoration(
+                    //           labelText: '',
+                    //           contentPadding: EdgeInsets.symmetric(vertical: 13), // Отступы по вертикали
+                    //           border: InputBorder.none,
+                    //         ),
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
+                     Column(
+  children: List.generate(colCount, (index) {
+  // Проверяем, есть ли уже контроллер для данного индекса
+  if (index >= _textControllers.length) {
+    _textControllers.add(TextEditingController());
+  }
+
+  return Positioned(
+          top: 85,
+          right: 25,
+          child: Visibility(
+    visible: !_isWidgetsVisible,
+          child: Container(
+            margin: EdgeInsets.symmetric(vertical: 8.0),
+            width: 186,
+            height: 40,
+            decoration: BoxDecoration(
+              color: Color(0xFFDDFFE4),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: Color(0x65656587), width: 1),
+            ),
+            child: TextField(
+              textAlign: TextAlign.center,
+              controller: _textControllers[index],
+              decoration: InputDecoration(
+                labelText: '',
+                contentPadding: EdgeInsets.symmetric(vertical: 13), // Отступы по вертикали
+                border: InputBorder.none,
+              ),
+            ),
+          ),
+    ),
+  );
+}),
+                     ),
+                  ],
+                  
                   ///////////////////////////////////////////////////////////////////////////
                   if (wayEnter == 'Файл формата' || formHist != 'Круговая диаграмма') ...[
                     Positioned(
@@ -686,6 +818,7 @@ Widget _buildGreenWidget(int index) {
                           onPressed: () {
                             _addGreenWidget(); // Добавление нового зеленого виджета
                             _updateWidgetPosition();
+                            HandCircle = false;
                             if (alignInt == 5) {
                             widgetFinished = true;
                             }
@@ -719,6 +852,11 @@ Widget _buildGreenWidget(int index) {
                             setState(() {
                             _isWidgetsVisible = false;
                             _isLastWidget = true;
+                            if (wayEnter == 'Ручной ввод' && formHist == 'Круговая диаграмма') {
+                              dialogWidth = 300;
+                              dialogHeight = 480;
+                              HandCircle = true;
+                              }
                             });
                           },
                           child: Text(
@@ -756,6 +894,8 @@ Widget _buildGreenWidget(int index) {
                         Positioned(
                           bottom: 55,
                           right: 40,
+                          child: Visibility(
+                        visible: _isLastWidget ? false : true,
                           child: Row(
                             children: [
                               Text(
@@ -778,6 +918,7 @@ Widget _buildGreenWidget(int index) {
                               ),
                             ],
                           ),
+                        ),
                         ),
                       ],
                     ],
