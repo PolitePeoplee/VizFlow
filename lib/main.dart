@@ -40,13 +40,13 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   String? positiond; // Хранит тип графика (может быть null)
   bool _isDataSourceExpanded = false; // состояние для управления видимостью выпадающего меню
   bool _isFileSourceExpanded = false; // состояние для управления видимостью второго меню (Файл формата или Ручной ввод)
+  bool widgetFinished = false;
   late AnimationController _controller;
   int secondWidgetCount = 0;
   int widgetCount = 0; // Счетчик виджетов
+  int alignInt = 0;
 
 // Позиции виджетов
-  double _topPosition = 50; // Начальная позиция по вертикали
-  double _leftPosition = 50; // Начальная позиция по горизонтали
   bool _isPlusWidgetMoved = false; // Флаг для отслеживания смещения
   List<Widget> greenWidgets = []; // Список зеленых виджетов
 
@@ -54,12 +54,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     setState(() {
       if (_isPlusWidgetMoved) {
         // Если виджет уже сместился, смещаем его наискосок влево вниз
-        _topPosition += 250; // Смещение вниз
-        _leftPosition -= 300; // Смещение влево
         _isPlusWidgetMoved = false; // Сбрасываем флаг
       } else {
         // Если виджет не смещен, смещаем его вправо
-        _leftPosition += 300; // Смещение вправо
         _isPlusWidgetMoved = true; // Устанавливаем флаг
       }
     });
@@ -69,8 +66,31 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     setState(() {
       greenWidgets.add(_buildGreenWidget(greenWidgets.length)); // Добавляем новый зеленый виджет
     });
+    
   }
   
+  Alignment setAlignment(int index)
+    {
+      int num = index;
+      switch (num)
+      {
+        case 0:
+          return Alignment.topLeft;
+        case 1:
+          return Alignment.topRight;
+        case 2:
+          return Alignment.centerLeft;
+        case 3:
+          return Alignment.centerRight;
+        case 4:
+          return Alignment.bottomLeft;
+        case 5:
+          return Alignment.bottomRight;
+        default:
+          return Alignment.topCenter;
+      }
+    }
+
   @override
   void initState() {
     super.initState();
@@ -105,9 +125,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     print(jsonData); // Для проверки выведем в консоль
   }
 Widget _buildGreenWidget(int index) {
-    return Positioned(
-      // top:_topPosition, // Позиция такая же, как у первого виджета
-      // left: _leftPosition, // Смещение, измените по необходимости
+    return Align(
+      alignment: setAlignment(index),
       child: GestureDetector(
         onTap: () {
                   if(formHist == "Гистограмма")
@@ -172,7 +191,7 @@ Widget _buildGreenWidget(int index) {
                   }
 },
         child: Container(
-          // alignment: _isPlusWidgetMoved ? Alignment.bottomLeft: Alignment.bottomRight,
+          margin: EdgeInsets.all(50),
           width: 170,
           height: 170,
           decoration: BoxDecoration(
@@ -234,16 +253,19 @@ Widget _buildGreenWidget(int index) {
           Expanded(
             child: Stack(
               children: [
+                Visibility(
+                        visible: widgetFinished ? false : true,
                 // Анимированный виджет с плюсом
-                AnimatedPositioned(
-                  top: _topPosition,
-                  left: _leftPosition,
+                child: AnimatedAlign(
+                  alignment: setAlignment(alignInt),
                   duration: Duration(milliseconds: 300), // Длительность анимации
+                  
                   child: GestureDetector(
                     onTap: () {
                       _showParameterDialog(context);
                     },
                     child: Container(
+                      margin: EdgeInsets.all(50),
                       width: 170,
                       height: 170,
                       child: Card(
@@ -257,6 +279,7 @@ Widget _buildGreenWidget(int index) {
                       ),
                     ),
                   ),
+                ),
                 ),
                 // Зеленые виджеты
                 ...greenWidgets,
@@ -306,7 +329,7 @@ Widget _buildGreenWidget(int index) {
   void _showParameterDialog(BuildContext context) {
     TextEditingController textController = TextEditingController();
     TextEditingController firstController = TextEditingController(); // Контроллер для первого TextField
-  TextEditingController secondController = TextEditingController(); // Контроллер для второго TextField
+    TextEditingController secondController = TextEditingController(); // Контроллер для второго TextField
 
     double dialogWidth = 300;
     double dialogHeight = 480;
@@ -663,7 +686,11 @@ Widget _buildGreenWidget(int index) {
                           onPressed: () {
                             _addGreenWidget(); // Добавление нового зеленого виджета
                             _updateWidgetPosition();
+                            if (alignInt == 5) {
+                            widgetFinished = true;
+                            }
                             Navigator.pop(context);
+                            alignInt++;
                           },
                           child: Text(
                             'Ок',
