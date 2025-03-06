@@ -106,8 +106,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   }
 Widget _buildGreenWidget(int index) {
     return Positioned(
-      top:_topPosition, // Позиция такая же, как у первого виджета
-      left: _leftPosition, // Смещение, измените по необходимости
+      // top:_topPosition, // Позиция такая же, как у первого виджета
+      // left: _leftPosition, // Смещение, измените по необходимости
       child: GestureDetector(
         onTap: () {
                   if(formHist == "Гистограмма")
@@ -172,6 +172,7 @@ Widget _buildGreenWidget(int index) {
                   }
 },
         child: Container(
+          // alignment: _isPlusWidgetMoved ? Alignment.bottomLeft: Alignment.bottomRight,
           width: 170,
           height: 170,
           decoration: BoxDecoration(
@@ -367,7 +368,7 @@ Widget _buildGreenWidget(int index) {
                             });
                           },
                           child: Text(
-                            'Далее',
+                            'Далее!',
                             style: TextStyle(color: Colors.black),
                           ),
                         ),
@@ -537,7 +538,7 @@ Widget _buildGreenWidget(int index) {
                   ],
                   ///////////////////////////////////////////////////////////////////////////
                   if (wayEnter == 'Файл формата' || formHist != 'Круговая диаграмма') ...[
-                  Positioned(
+                    Positioned(
                       top: 85,
                       left: 25,
                       child: Visibility(
@@ -646,6 +647,7 @@ Widget _buildGreenWidget(int index) {
                       ),
                     ),
                   ],
+                  //ок
                     Positioned(
                       bottom: 15,
                       right: 25,
@@ -671,6 +673,7 @@ Widget _buildGreenWidget(int index) {
                       ),
                     ),
                     ),
+                    //далее
                     Positioned(
                       bottom: 15,
                       right: 25,
@@ -687,7 +690,7 @@ Widget _buildGreenWidget(int index) {
                             print(firstController.text);
                             print(secondController.text);
                             setState(() {
-                            _isWidgetsVisible = true;
+                            _isWidgetsVisible = false;
                             _isLastWidget = true;
                             });
                           },
@@ -722,14 +725,14 @@ Widget _buildGreenWidget(int index) {
                             ),
                           ),
                         ),
-                      ] else ...[
+                      ] else if (formHist == 'Круговая диаграмма') ...[
                         Positioned(
                           bottom: 55,
                           right: 40,
                           child: Row(
                             children: [
                               Text(
-                                'Укажите количество столбцов:',
+                                'Укажите количество секторов:',
                                 style: TextStyle(fontSize: 12, color: Colors.black),
                               ),
                               SizedBox(width: 10), // Отступ между текстом и полем
