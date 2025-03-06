@@ -41,9 +41,36 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   bool _isDataSourceExpanded = false; // состояние для управления видимостью выпадающего меню
   bool _isFileSourceExpanded = false; // состояние для управления видимостью второго меню (Файл формата или Ручной ввод)
   late AnimationController _controller;
-  late Animation<double> _animation;
-  bool _isMoved = false; // Переменная для отслеживания смещения
+  int secondWidgetCount = 0;
+  int widgetCount = 0; // Счетчик виджетов
 
+// Позиции виджетов
+  double _topPosition = 50; // Начальная позиция по вертикали
+  double _leftPosition = 50; // Начальная позиция по горизонтали
+  bool _isPlusWidgetMoved = false; // Флаг для отслеживания смещения
+  List<Widget> greenWidgets = []; // Список зеленых виджетов
+
+  void _updateWidgetPosition() {
+    setState(() {
+      if (_isPlusWidgetMoved) {
+        // Если виджет уже сместился, смещаем его наискосок влево вниз
+        _topPosition += 250; // Смещение вниз
+        _leftPosition -= 300; // Смещение влево
+        _isPlusWidgetMoved = false; // Сбрасываем флаг
+      } else {
+        // Если виджет не смещен, смещаем его вправо
+        _leftPosition += 300; // Смещение вправо
+        _isPlusWidgetMoved = true; // Устанавливаем флаг
+      }
+    });
+  }
+
+  void _addGreenWidget() {
+    setState(() {
+      greenWidgets.add(_buildGreenWidget(greenWidgets.length)); // Добавляем новый зеленый виджет
+    });
+  }
+  
   @override
   void initState() {
     super.initState();
@@ -52,26 +79,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-
-    // Инициализация анимации
-    _animation = Tween<double>(begin: 0, end: 245).animate(_controller);
   }
 
   @override
   void dispose() {
     _controller.dispose(); // Освобождаем контроллер
     super.dispose();
-  }
-
-  void _moveWidget() {
-    setState(() {
-      if (_isMoved) {
-        _controller.reverse(); // Возвращаемся в начальное положение
-      } else {
-        _controller.forward(); // Двигаем виджет вправо
-      }
-      _isMoved = !_isMoved; // Переключаем состояние
-    });
   }
 
   void _saveData(String name, String? position, String? source) {
@@ -91,75 +104,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     // Например, вы можете использовать метод для сохранения в файл
     print(jsonData); // Для проверки выведем в консоль
   }
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(60),
-        child: AppBar(
-          leading: Icon(Icons.arrow_back, color: Colors.black),
-          actions: [
-            Icon(Icons.help_outline, color: Colors.black),
-          ],
-          title: GradientText(
-            'VizFlow',
-            gradient: LinearGradient(
-              colors: [Color(0xFF2AD85E), Color(0xFF34EDEF)],
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-            ),
-            style: GoogleFonts.roboto(
-              fontSize: 48,
-              fontWeight: FontWeight.w400,
-            ),
-          ),
-          centerTitle: true,
-          backgroundColor: Colors.white,
-          elevation: 0,
-        ),
-      ),
-      body: Column(
-  children: [
-    Divider(),
-    Expanded(
-      child: Stack(
-        children: [
-          // Первый виджет
-          AnimatedBuilder(
-            animation: _animation,
-            builder: (context, child) {
-              return Positioned(
-                top: 50,
-                left: _animation.value + 50, // Смещение
-                child: GestureDetector(
-                  onTap: () {
-                    _showParameterDialog(context);
-                  },
-                  child: Container(
-                    width: 170,
-                    height: 170,
-                    child: Card(
-                      elevation: 3,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Center(
-                        child: Icon(Icons.add, size: 40, color: Colors.grey),
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
-          // Второй виджет
-           if (_isMoved) // Проверяем, должен ли отображаться второй виджет
-            Positioned(
-              top: 50, // Позиция такая же, как у первого виджета
-              left: 50, // Смещение, измените по необходимости
-              child: GestureDetector(
-                onTap: () {
+Widget _buildGreenWidget(int index) {
+    return Positioned(
+      top:_topPosition, // Позиция такая же, как у первого виджета
+      left: _leftPosition, // Смещение, измените по необходимости
+      child: GestureDetector(
+        onTap: () {
                   if(formHist == "Гистограмма")
                   {
                     if(wayEnter == "Файл формата")
@@ -220,63 +170,135 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                       );
                     }
                   }
-
-                },
-                child: Container(
-                  width: 170,
-                  height: 170,
-                  decoration: BoxDecoration(
-                    color: Color.fromRGBO(42, 216, 94, 0.41), // Цвет фона
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Название: $named', // Подставьте переменную с названием
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                      Divider(
-                        color: Colors.black, // Разделитель
-                        thickness: 1,
-                      ),
-                      Text(
-                        'Тип: $positiond', // Подставьте переменную с типом
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                      // Можно добавить иконку или график, если потребуется
-                    ],
-                  ),
-                ),
+},
+        child: Container(
+          width: 170,
+          height: 170,
+          decoration: BoxDecoration(
+            color: Color.fromRGBO(42, 216, 94, 0.41), // Цвет фона
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Название: $named', // Подставьте переменную с названием
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
-            ),
-        ],
-      ),
-    ),
-  ],
-),
-      bottomNavigationBar: BottomAppBar(
-        color: Colors.tealAccent[700],
-        shape: CircularNotchedRectangle(),
-        notchMargin: 8.0,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            IconButton(
-              icon: Icon(Icons.bar_chart, color: Colors.black),
-              onPressed: () {},
-            ),
-            IconButton(
-              icon: Icon(Icons.book, color: Colors.black),
-              onPressed: () {},
-            ),
-            IconButton(
-              icon: Icon(Icons.settings, color: Colors.black),
-              onPressed: () {},
-            ),
-          ],
+              Divider(
+                color: Colors.black, // Разделитель
+                thickness: 1,
+              ),
+              Text(
+                'Тип: $positiond', // Подставьте переменную с типом
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
         ),
       ),
+    );
+  }
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(60),
+        child: AppBar(
+          leading: Icon(Icons.arrow_back, color: Colors.black),
+          actions: [
+            Icon(Icons.help_outline, color: Colors.black),
+          ],
+          title: GradientText(
+            'VizFlow',
+            gradient: LinearGradient(
+              colors: [Color(0xFF2AD85E), Color(0xFF34EDEF)],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+            style: GoogleFonts.roboto(
+              fontSize: 48,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+          centerTitle: true,
+          backgroundColor: Colors.white,
+          elevation: 0,
+        ),
+      ),
+      body: Column(
+        children: [
+          Divider(),
+          Expanded(
+            child: Stack(
+              children: [
+                // Анимированный виджет с плюсом
+                AnimatedPositioned(
+                  top: _topPosition,
+                  left: _leftPosition,
+                  duration: Duration(milliseconds: 300), // Длительность анимации
+                  child: GestureDetector(
+                    onTap: () {
+                      _showParameterDialog(context);
+                    },
+                    child: Container(
+                      width: 170,
+                      height: 170,
+                      child: Card(
+                        elevation: 3,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Center(
+                          child: Icon(Icons.add, size: 40, color: Colors.grey),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                // Зеленые виджеты
+                ...greenWidgets,
+              ],
+            ),
+          ),
+          Divider(),
+        ],
+      ),
+      bottomNavigationBar: BottomAppBar(
+  color: Colors.white,
+  shape: CircularNotchedRectangle(),
+  notchMargin: 8.0,
+  child: Row(
+    mainAxisAlignment: MainAxisAlignment.spaceAround,
+    children: [
+      TextButton(
+        onPressed: () {},
+        child: Image.asset(
+          'assets/images/archive.png',
+          width: 32, // Установите нужный размер
+          height: 28,
+        ),
+      ),
+      TextButton(
+        onPressed: () {},
+        child: Image.asset(
+          'assets/images/book.png',
+          width: 25,
+          height: 28,
+        ),
+      ),
+      TextButton(
+        onPressed: () {},
+        child: Image.asset(
+          'assets/images/settings.png',
+          width: 28,
+          height: 28,
+        ),
+      ),
+    ],
+  ),
+),
     );
   }
 
@@ -637,7 +659,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                             backgroundColor: Color(0xFF8FFF9A),
                           ),
                           onPressed: () {
-                            _moveWidget();
+                            _addGreenWidget(); // Добавление нового зеленого виджета
+                            _updateWidgetPosition();
                             Navigator.pop(context);
                           },
                           child: Text(
