@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:convert';
@@ -45,11 +46,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   int secondWidgetCount = 0;
   int widgetCount = 0; // Счетчик виджетов
   int alignInt = 0;
-
   double dialogWidth = 300;
   double dialogHeight = 480;
-
-  
+  late List<PieData> pieData = [];
   bool showFields = false;
   bool showNewWidgets = false;
   final TextEditingController _countController = TextEditingController();
@@ -75,9 +74,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     setState(() {
       greenWidgets.add(_buildGreenWidget(greenWidgets.length)); // Добавляем новый зеленый виджет
     });
-    
   }
-  
   Alignment setAlignment(int index)
     {
       int num = index;
@@ -115,7 +112,22 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     _controller.dispose(); // Освобождаем контроллер
     super.dispose();
   }
-
+  void fillPieData()
+  {
+    for(int i = 0; i < _textControllers.length - 1; i++)
+      {
+        if(i%2 == 0)
+          pieData.add(PieData(_textControllers[i].text, int.parse(_textControllers[i+1].text)));
+        else
+          continue;
+      }
+  }
+  void fillPieDataFile(){
+    for(int i =0; i < a.data.length; i++)
+    {
+        pieData.add(PieData(a.data[i][0], int.parse(a.data[i][1])));
+    }
+  }
   void _saveData(String name, String? position, String? source) {
     // Создаем объект с данными
     Map<String, dynamic> data = {
@@ -134,7 +146,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     print(jsonData); // Для проверки выведем в консоль
   }
 
-int _fieldCount = 0;
+  int _fieldCount = 0;
 
   void _updateFields() {
     setState(() {
@@ -171,10 +183,11 @@ Widget _buildGreenWidget(int index) {
                       );
                     }
                     else{
+                      List<dynamic> gistData = [];
                       Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => GistogramPage(userData: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], userColCount: colCount),
+                        builder: (context) => GistogramPage(userData: gistData, userColCount: colCount),
                         )
                       );
                     }
@@ -183,20 +196,23 @@ Widget _buildGreenWidget(int index) {
                   {
                     if(wayEnter == "Файл формата")
                     {
+                      fillPieDataFile();
                       Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => PiePage(),
+                        builder: (context) => PiePage(userData: pieData),
                         )
                       );
                     }
                     else{
+                      fillPieData();
                       Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => PiePage(),
+                        builder: (context) => PiePage(userData: pieData),
                         )
                       );
+                      pieData = [];
                     }
                   }
                   else if(formHist == "График корелляции")
@@ -293,7 +309,6 @@ Widget _buildGreenWidget(int index) {
                 child: AnimatedAlign(
                   alignment: setAlignment(alignInt),
                   duration: Duration(milliseconds: 300), // Длительность анимации
-                  
                   child: GestureDetector(
                     onTap: () {
                       _showParameterDialog(context);
@@ -419,16 +434,16 @@ Widget _buildGreenWidget(int index) {
                               if (formHist == 'Круговая диаграмма' && wayEnter == 'Файл формата') {
                                 _isLastWidget = true;
                               }
-                              if (formHist == 'Круговая диаграмма' && wayEnter == 'Ручной ввод') { 
+                              if (formHist == 'Круговая диаграмма' && wayEnter == 'Ручной ввод') {
                                 dialogHeight = 122;
                                 dialogWidth = 307;
                               }
-                              if (formHist == 'Гистограмма' && wayEnter == 'Ручной ввод') { 
+                              if (formHist == 'Гистограмма' && wayEnter == 'Ручной ввод') {
                                 dialogHeight = 240;
                                 dialogWidth = 307;
                                 HandHist = true;
                               }
-                              if (formHist == 'График корелляции' && wayEnter == 'Ручной ввод') { 
+                              if (formHist == 'График корелляции' && wayEnter == 'Ручной ввод') {
                                 dialogHeight = 335;
                                 dialogWidth = 307;
                                 HandCorel = true;
@@ -535,10 +550,6 @@ Widget _buildGreenWidget(int index) {
                         ),
                       ),
                     ),
-
-                    
-
-
                     // Новый прямоугольник для выбора источника данных
                     AnimatedPositioned(
                       duration: Duration(milliseconds: 300),
@@ -1170,7 +1181,7 @@ SizedBox(
                                 backgroundColor: Color.fromARGB(255, 197, 197, 197),
                               ),
                               onPressed: () {
-                                a.openImageFile(context);
+                                a.openImageFile(context, formHist);
                                 _isLastWidget = true;
                               },
                               child: Text(
@@ -1202,7 +1213,7 @@ SizedBox(
                                     border: OutlineInputBorder(),
                                   ),
                                   onChanged: (value) {
-                                    colCount = int.parse(value);
+                                    value == "" ? "" : colCount = int.parse(value);
                                   },
                                 ),
                               ),
