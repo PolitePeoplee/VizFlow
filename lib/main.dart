@@ -49,7 +49,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   double dialogWidth = 300;
   double dialogHeight = 480;
 
-  bool HandCircle = false;
+  
   bool showFields = false;
   bool showNewWidgets = false;
   final TextEditingController _countController = TextEditingController();
@@ -256,9 +256,12 @@ Widget _buildGreenWidget(int index) {
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(60),
         child: AppBar(
-          leading: Icon(Icons.arrow_back, color: Colors.black),
           actions: [
-            Icon(Icons.help_outline, color: Colors.black),
+            Image.asset(
+          'assets/images/question.png',
+          width: 32,
+          height: 32,
+        ),
           ],
           title: GradientText(
             'VizFlow',
@@ -362,7 +365,9 @@ Widget _buildGreenWidget(int index) {
     TextEditingController firstController = TextEditingController(); // Контроллер для первого TextField
     TextEditingController secondController = TextEditingController(); // Контроллер для второго TextField
 
-    
+    bool HandCorel = false;
+    bool HandHist = false;
+    bool HandCircle = false;
     bool _isWidgetsVisible = true;
     bool _isLastWidget = false;
     showDialog(
@@ -417,6 +422,16 @@ Widget _buildGreenWidget(int index) {
                               if (formHist == 'Круговая диаграмма' && wayEnter == 'Ручной ввод') { 
                                 dialogHeight = 122;
                                 dialogWidth = 307;
+                              }
+                              if (formHist == 'Гистограмма' && wayEnter == 'Ручной ввод') { 
+                                dialogHeight = 240;
+                                dialogWidth = 307;
+                                HandHist = true;
+                              }
+                              if (formHist == 'График корелляции' && wayEnter == 'Ручной ввод') { 
+                                dialogHeight = 335;
+                                dialogWidth = 307;
+                                HandCorel = true;
                               }
                             });
                           },
@@ -595,101 +610,308 @@ Widget _buildGreenWidget(int index) {
                       ),
                     ),
                   ],
-                  if (HandCircle) ...[
-                    Column(
-                children: [
-                   Visibility(
-                      visible: HandCircle,
-                      child:  Positioned(
-                        top: 25,
-                        left: 25,
-                        child: Container(
-                          width: 250,
-                          height: 40,
 
-                          child: Text('Введите название сектора и значение',
-                              textAlign: TextAlign.center, // Выравнивание текста
-                              style: TextStyle(
-                                fontSize: 14, // Размер шрифта
-                                color: Colors.black, // Цвет текста
+                  if (HandHist && _isLastWidget) ...[
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                              Container(
+                                width: 250,
+                                height: 40,
+                                alignment: Alignment.center, // Выравниваем текст
+                                child: Text(
+                                  'Введите данные',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                              child: Divider(
+                                color: Colors.black,
+                                thickness: 0.5,
                               ),
                             ),
-                        ),
-                      ),
-                  ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 30.0), // Отступы по горизонтали
-                          child:Divider(
-                            color: Colors.black, // Разделитель
-                            thickness: 0.5,
+                            SizedBox(
+                      height: (colCount) * 50 + 100, // Учитываем количество элементов
+                      child: Stack(
+                        children: List.generate(colCount, (index) {
+                          if (index >= _textControllers.length) {
+                            _textControllers.add(TextEditingController());
+                          }
+
+                          // Определяем текст для названия сектора или значения
+                          String labelText = 'Значение ${index + 1}';
+
+                          return Positioned(
+                            top: 25 + (index * 50), // Смещение вниз для каждого элемента
+                            right: 25, // Смещение вправо
+                            child: Container(
+                              width: 250, // Установите ширину контейнера, если это необходимо
+                              child: Row(
+                                children: [
+                                  // Контейнер с текстом "Сектор" или "Значение"
+                                  Container(
+                                    width: 100, // Ширина для текста
+                                    alignment: Alignment.centerLeft,
+                                    padding: EdgeInsets.only(left: 8.0), // Отступ слева для текста
+                                    child: Text(
+                                      labelText,
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                                  // Поле ввода
+                                  Expanded(
+                                    child: Container(
+                                      height: 40,
+                                      decoration: BoxDecoration(
+                                        color: Color(0xFFDDFFE4),
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(color: Color(0x65656587), width: 1),
+                                      ),
+                                      child: TextField(
+                                        textAlign: TextAlign.center,
+                                        controller: _textControllers[index], //контроллеры(Артему)//////////////////////////////////////////////////
+                                        decoration: InputDecoration(
+                                          labelText: '',
+                                          contentPadding: EdgeInsets.symmetric(vertical: 13),
+                                          border: InputBorder.none,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                          ],
+                          );
+                              }),
+                            ),
+                          ),
+                                ],
+                              ),
+                            ),
                     ),
-                    // Positioned(
-                    //   top: 85,
-                    //   right: 25,
-                    //   child: Visibility(
-                    //     visible: !_isWidgetsVisible ? true : false,
-                    //     child: Container(
-                    //       width: 186,
-                    //       height: 40,
-                    //       decoration: BoxDecoration(
-                    //         color: Color(0xFFDDFFE4),
-                    //         borderRadius: BorderRadius.circular(10),
-                    //         border: Border.all(
-                    //           color: Color(0x65656587),
-                    //           width: 1,
-                    //         ),
-                    //       ),
-                    //       child: TextField(
-                    //         textAlign: TextAlign.center,
-                    //         controller: firstController,
-                    //         decoration: InputDecoration(
-                    //           labelText: '',
-                    //           contentPadding: EdgeInsets.symmetric(vertical: 13), // Отступы по вертикали
-                    //           border: InputBorder.none,
-                    //         ),
-                    //       ),
-                    //     ),
-                    //   ),
-                    // ),
-                     Column(
-  children: List.generate(colCount, (index) {
-  // Проверяем, есть ли уже контроллер для данного индекса
-  if (index >= _textControllers.length) {
-    _textControllers.add(TextEditingController());
-  }
-
-  return Positioned(
-          top: 85,
-          right: 25,
-          child: Visibility(
-    visible: !_isWidgetsVisible,
-          child: Container(
-            margin: EdgeInsets.symmetric(vertical: 8.0),
-            width: 186,
-            height: 40,
-            decoration: BoxDecoration(
-              color: Color(0xFFDDFFE4),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Color(0x65656587), width: 1),
-            ),
-            child: TextField(
-              textAlign: TextAlign.center,
-              controller: _textControllers[index],
-              decoration: InputDecoration(
-                labelText: '',
-                contentPadding: EdgeInsets.symmetric(vertical: 13), // Отступы по вертикали
-                border: InputBorder.none,
-              ),
-            ),
-          ),
-    ),
-  );
-}),
-                     ),
                   ],
+
+                  if (HandCorel && _isLastWidget) ...[
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                              Container(
+                                width: 250,
+                                height: 40,
+                                alignment: Alignment.center, // Выравниваем текст
+                                child: Text(
+                                  'Введите координаты точек',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                              child: Divider(
+                                color: Colors.black,
+                                thickness: 0.5,
+                              ),
+                            ),
+SizedBox(
+  height: (colCount * 2) * 50 + 100, // Учитываем количество элементов
+  child: Padding(
+    padding: const EdgeInsets.only(left: 40.0), // Отступ слева на 20 пикселей
+    child: Column(
+      children: List.generate(colCount, (index) {
+        // Инициализация контроллеров, если это необходимо
+        if (index * 2 >= _textControllers.length) {
+          _textControllers.add(TextEditingController());
+          _textControllers.add(TextEditingController());
+        }
+
+        // Определяем текст для названия
+        String labelX = 'X${index + 1}:';
+        String labelY = 'Y${index + 1}:';
+
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 10.0), // Отступ между строками
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start, // Выравнивание по левому краю
+            children: [
+              // Контейнер с текстом "X" и полем ввода
+              Container(
+                width: 30, // Ширина для текста
+                alignment: Alignment.centerLeft,
+                padding: EdgeInsets.only(left: 4.0), // Уменьшаем отступ слева для текста
+                child: Text(
+                  labelX,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+              // Поле ввода для X
+              Container(
+                width: 70, // Ширина поля ввода
+                height: 40, // Высота поля ввода
+                decoration: BoxDecoration(
+                  color: Color(0xFFDDFFE4),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Color(0x65656587), width: 1),
+                ),
+                child: TextField(
+                  textAlign: TextAlign.center,
+                  controller: _textControllers[index * 2], // Контроллер для X
+                  decoration: InputDecoration(
+                    labelText: '',
+                    contentPadding: EdgeInsets.symmetric(vertical: 0), // Убираем вертикальные отступы
+                    border: InputBorder.none,
+                  ),
+                ),
+              ),
+              SizedBox(width: 10), // Горизонтальный отступ между X и Y
+              // Контейнер с текстом "Y" и полем ввода
+              Container(
+                width: 30, // Ширина для текста
+                alignment: Alignment.centerLeft,
+                padding: EdgeInsets.only(left: 4.0), // Уменьшаем отступ слева для текста
+                child: Text(
+                  labelY,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+              // Поле ввода для Y
+              Container(
+                width: 70, // Ширина поля ввода
+                height: 40, // Высота поля ввода
+                decoration: BoxDecoration(
+                  color: Color(0xFFDDFFE4),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Color(0x65656587), width: 1),
+                ),
+                child: TextField(
+                  textAlign: TextAlign.center,
+                  controller: _textControllers[index * 2 + 1], // Контроллер для Y
+                  decoration: InputDecoration(
+                    labelText: '',
+                    border: InputBorder.none,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      }),
+    ),
+  ),
+),
+                                ],
+                              ),
+                            ),
+                    ),
+                  ],
+
+                  if (HandCircle) ...[
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                              Container(
+                                width: 250,
+                                height: 40,
+                                alignment: Alignment.center, // Выравниваем текст
+                                child: Text(
+                                  'Введите название сектора и значение',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                              child: Divider(
+                                color: Colors.black,
+                                thickness: 0.5,
+                              ),
+                            ),
+                            SizedBox(
+                      height: (colCount * 2) * 50 + 100, // Учитываем количество элементов
+                      child: Stack(
+                        children: List.generate(colCount * 2, (index) {
+                          if (index >= _textControllers.length) {
+                            _textControllers.add(TextEditingController());
+                          }
+
+                          // Определяем текст для названия сектора или значения
+                          String labelText = (index % 2 == 0) ? 'Сектор ${index ~/ 2 + 1}' : 'Значение ${index ~/ 2 + 1}';
+
+                          return Positioned(
+                            top: 25 + (index * 50), // Смещение вниз для каждого элемента
+                            right: 25, // Смещение вправо
+                            child: Container(
+                              width: 250, // Установите ширину контейнера, если это необходимо
+                              child: Row(
+                                children: [
+                                  // Контейнер с текстом "Сектор" или "Значение"
+                                  Container(
+                                    width: 100, // Ширина для текста
+                                    alignment: Alignment.centerLeft,
+                                    padding: EdgeInsets.only(left: 8.0), // Отступ слева для текста
+                                    child: Text(
+                                      labelText,
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                                  // Поле ввода
+                                  Expanded(
+                                    child: Container(
+                                      height: 40,
+                                      decoration: BoxDecoration(
+                                        color: Color(0xFFDDFFE4),
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(color: Color(0x65656587), width: 1),
+                                      ),
+                                      child: TextField(
+                                        textAlign: TextAlign.center,
+                                        controller: _textControllers[index], //контроллеры(Артему)//////////////////////////////////////////////////
+                                        decoration: InputDecoration(
+                                          labelText: '',
+                                          contentPadding: EdgeInsets.symmetric(vertical: 13),
+                                          border: InputBorder.none,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                              }),
+                            ),
+                          ),
+                                ],
+                              ),
+                            ),
+                    ),
+                  ],
+
                   
                   ///////////////////////////////////////////////////////////////////////////
                   if (wayEnter == 'Файл формата' || formHist != 'Круговая диаграмма') ...[
@@ -697,7 +919,7 @@ Widget _buildGreenWidget(int index) {
                       top: 85,
                       left: 25,
                       child: Visibility(
-                        visible: !_isWidgetsVisible ? true : false,
+                        visible: !_isWidgetsVisible && !_isLastWidget ? true : false,
                         child: Container(
                           width: 250,
                           height: 40,
@@ -724,7 +946,7 @@ Widget _buildGreenWidget(int index) {
                       top: 185,
                       left: 25,
                       child: Visibility(
-                        visible: !_isWidgetsVisible ? true : false,
+                        visible: !_isWidgetsVisible && formHist != 'Гистограмма' && !_isLastWidget ? true : false,
                         child: Container(
                           width: 250,
                           height: 40,
@@ -755,7 +977,7 @@ Widget _buildGreenWidget(int index) {
                       top: 25, // Положение сверху
                       left: 40, // Положение слева
                       child: Visibility(
-                        visible: !_isWidgetsVisible ? true : false,
+                        visible: !_isWidgetsVisible && !_isLastWidget ? true : false,
                         child: Container(
                           width: 218, // Ширина
                           height: 37, // Высота
@@ -782,14 +1004,14 @@ Widget _buildGreenWidget(int index) {
                       top: 130, // Положение сверху
                       left: 40, // Положение слева
                       child: Visibility(
-                        visible: !_isWidgetsVisible ? true : false,
+                        visible: !_isWidgetsVisible && formHist != 'Гистограмма' && !_isLastWidget ? true : false,
                         child: Container(
                           width: 218, // Ширина
                           height: 37, // Высота
                           child: Center(
                             child: Text(
-                              formHist == 'Гистограмма' || formHist == 'График корелляции'
-                                  ? 'Укажите количество столбцов'
+                              formHist == 'График корелляции'
+                                  ? 'Укажите название столбца с данными для оси OY'
                                   : 'Укажите название столбца с категориями',
                               textAlign: TextAlign.center, // Выравнивание текста
                               style: TextStyle(
@@ -801,6 +1023,64 @@ Widget _buildGreenWidget(int index) {
                         ),
                       ),
                     ),
+                    if (HandHist && !_isLastWidget) ... [
+                    Positioned(
+                          bottom: 55,
+                          right: 40,
+                          child: Row(
+                            children: [
+                              Text(
+                                'Укажите количество столбцов:',
+                                style: TextStyle(fontSize: 12, color: Colors.black),
+                              ),
+                              SizedBox(width: 10), // Отступ между текстом и полем
+                              Container(
+                                width: 50,
+                                height: 30,
+                                child: TextField(
+                                  keyboardType: TextInputType.number,
+                                  decoration: InputDecoration(
+                                    border: OutlineInputBorder(),
+                                  ),
+                                  onChanged: (value) { ////////////Артему
+                                    colCount = int.parse(value);
+                                  },
+                                ),
+                              ),
+                            ],
+                            
+                          ),
+                        ),
+                    ],
+                    if (HandCorel && !_isLastWidget) ... [
+                    Positioned(
+                          bottom: 55,
+                          right: 40,
+                          child: Row(
+                            children: [
+                              Text(
+                                'Укажите количество точек:',
+                                style: TextStyle(fontSize: 12, color: Colors.black),
+                              ),
+                              SizedBox(width: 10), // Отступ между текстом и полем
+                              Container(
+                                width: 50,
+                                height: 30,
+                                child: TextField(
+                                  keyboardType: TextInputType.number,
+                                  decoration: InputDecoration(
+                                    border: OutlineInputBorder(),
+                                  ),
+                                  onChanged: (value) { ////////////Артему
+                                    colCount = int.parse(value);
+                                  },
+                                ),
+                              ),
+                            ],
+                            
+                          ),
+                        ),
+                    ],
                   ],
                   //ок
                     Positioned(
@@ -857,6 +1137,16 @@ Widget _buildGreenWidget(int index) {
                               dialogHeight = 480;
                               HandCircle = true;
                               }
+                            if (wayEnter == 'Ручной ввод' && formHist == 'Гистограмма') {
+                            dialogWidth = 300;
+                            dialogHeight = 320;
+                            HandHist = true;
+                            }
+                            if (wayEnter == 'Ручной ввод' && formHist == 'График корелляции') {
+                            dialogWidth = 300;
+                            dialogHeight = 310;
+                            HandCorel = true;
+                            }
                             });
                           },
                           child: Text(
