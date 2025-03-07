@@ -33,9 +33,9 @@ Future <List<dynamic>> readExcelFile(XFile file, String? formHist) async {
         else if(formHist == "График корреляции")
         {
           var rowData = row.map((cell) => cell?.value.toString()).toString();
-          rowData = rowData.replaceAll('(', '').replaceAll(')', '');
-          var rowDataDouble = int.tryParse(rowData) ?? -1;
-          result.add(rowDataDouble);
+          rowData = rowData.replaceAll('(', '').replaceAll(')', '').replaceAll(' ', '');
+          List<String> parts = rowData.split(',');
+          result.add(parts);
         }
       }
     }

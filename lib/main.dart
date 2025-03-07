@@ -53,7 +53,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   bool showNewWidgets = false;
   final TextEditingController _countController = TextEditingController();
   List<TextEditingController> _textControllers = [];
-
+  List<dynamic> gistData = [];
+  List<Offset> LRData = [];
 // Позиции виджетов
   bool _isPlusWidgetMoved = false; // Флаг для отслеживания смещения
   List<Widget> greenWidgets = []; // Список зеленых виджетов
@@ -125,7 +126,30 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   void fillPieDataFile(){
     for(int i =0; i < a.data.length; i++)
     {
-        pieData.add(PieData(a.data[i][0], int.parse(a.data[i][1])));
+      pieData.add(PieData(a.data[i][0], int.parse(a.data[i][1])));
+    }
+  }
+  void fillGistData(){
+    for(int i = 0; i < _textControllers.length; i++)
+    {
+      gistData.add(int.parse(_textControllers[i].text));
+    }
+  }
+  void fillLRDataFile()
+  {
+    for(int i = 0; i < a.data.length; i++)
+    {
+      LRData.add(Offset(double.parse(a.data[i][0]), double.parse(a.data[i][1])));
+    }
+  }
+  void fillLRData()
+  {
+    for(int i = 0; i < _textControllers.length; i++)
+    {
+      if(i%2 == 0)
+        LRData.add(Offset(double.parse(_textControllers[i].text), double.parse(_textControllers[i+1].text)));
+      else
+        continue;
     }
   }
   void _saveData(String name, String? position, String? source) {
@@ -183,7 +207,8 @@ Widget _buildGreenWidget(int index) {
                       );
                     }
                     else{
-                      List<dynamic> gistData = [];
+                      gistData = [];
+                      fillGistData();
                       Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -196,6 +221,7 @@ Widget _buildGreenWidget(int index) {
                   {
                     if(wayEnter == "Файл формата")
                     {
+                      pieData = [];
                       fillPieDataFile();
                       Navigator.push(
                       context,
@@ -205,6 +231,7 @@ Widget _buildGreenWidget(int index) {
                       );
                     }
                     else{
+                      pieData = [];
                       fillPieData();
                       Navigator.push(
                       context,
@@ -212,25 +239,28 @@ Widget _buildGreenWidget(int index) {
                         builder: (context) => PiePage(userData: pieData),
                         )
                       );
-                      pieData = [];
                     }
                   }
-                  else if(formHist == "График корелляции")
+                  else if(formHist == "График корреляции")
                   {
                     if(wayEnter == "Файл формата")
                     {
+                      LRData = [];
+                      fillLRDataFile();
                       Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => LRPage(),
+                        builder: (context) => LRPage(userPoints: LRData),
                         )
                       );
                     }
                     else{
+                      LRData = [];
+                      fillLRData();
                       Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => LRPage(),
+                        builder: (context) => LRPage(userPoints: LRData),
                         )
                       );
                     }
@@ -443,7 +473,7 @@ Widget _buildGreenWidget(int index) {
                                 dialogWidth = 307;
                                 HandHist = true;
                               }
-                              if (formHist == 'График корелляции' && wayEnter == 'Ручной ввод') {
+                              if (formHist == 'График корреляции' && wayEnter == 'Ручной ввод') {
                                 dialogHeight = 335;
                                 dialogWidth = 307;
                                 HandCorel = true;
@@ -545,7 +575,7 @@ Widget _buildGreenWidget(int index) {
                           children: [
                             _buildMenuItem('Гистограмма', setState),
                             _buildMenuItem('Круговая диаграмма', setState),
-                            _buildMenuItem('График корелляции', setState),
+                            _buildMenuItem('График корреляции', setState),
                           ],
                         ),
                       ),
@@ -998,7 +1028,7 @@ SizedBox(
                                   ? 'Укажите название столбца с данными'
                                   : formHist == 'Гистограмма'
                                       ? 'Укажите название столбца с данными для оси OX'
-                                      : formHist == 'График корелляции'
+                                      : formHist == 'График корреляции'
                                           ? 'Укажите название столбца с данными для оси OX'
                                           : '',
                               textAlign: TextAlign.center, // Выравнивание текста
@@ -1021,7 +1051,7 @@ SizedBox(
                           height: 37, // Высота
                           child: Center(
                             child: Text(
-                              formHist == 'График корелляции'
+                              formHist == 'График корреляции'
                                   ? 'Укажите название столбца с данными для оси OY'
                                   : 'Укажите название столбца с категориями',
                               textAlign: TextAlign.center, // Выравнивание текста
@@ -1153,7 +1183,7 @@ SizedBox(
                             dialogHeight = 320;
                             HandHist = true;
                             }
-                            if (wayEnter == 'Ручной ввод' && formHist == 'График корелляции') {
+                            if (wayEnter == 'Ручной ввод' && formHist == 'График корреляции') {
                             dialogWidth = 300;
                             dialogHeight = 310;
                             HandCorel = true;
