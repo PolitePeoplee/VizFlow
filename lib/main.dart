@@ -35,7 +35,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   String? rowName;
   String? colName;
   late var a = fs.Fileselector();
-  late int colCount;
+  late int colCount = 0;
   String named = ""; // Хранит имя
   String? positiond; // Хранит тип графика (может быть null)
   bool _isDataSourceExpanded = false; // состояние для управления видимостью выпадающего меню
@@ -52,7 +52,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   
   bool showFields = false;
   bool showNewWidgets = false;
-  final TextEditingController _countController = TextEditingController();
   List<TextEditingController> _textControllers = [];
 
 // Позиции виджетов
@@ -133,27 +132,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     // Например, вы можете использовать метод для сохранения в файл
     print(jsonData); // Для проверки выведем в консоль
   }
-
-int _fieldCount = 0;
-
-  void _updateFields() {
-    setState(() {
-      int newCount = int.tryParse(_countController.text) ?? 0;
-
-      // Удаляем лишние контроллеры
-      if (newCount < _textControllers.length) {
-        _textControllers.removeRange(newCount, _textControllers.length);
-      } else {
-        // Добавляем недостающие контроллеры
-        for (int i = _textControllers.length; i < newCount; i++) {
-          _textControllers.add(TextEditingController());
-        }
-      }
-
-      _fieldCount = newCount;
-    });
-  }
-
 Widget _buildGreenWidget(int index) {
     return Align(
       alignment: setAlignment(index),
@@ -370,6 +348,12 @@ Widget _buildGreenWidget(int index) {
     bool HandCircle = false;
     bool _isWidgetsVisible = true;
     bool _isLastWidget = false;
+    String inputValue = '';
+    _isDataSourceExpanded = false; // состояние для управления видимостью выпадающего меню
+    _isFileSourceExpanded = false; // состояние для управления видимостью второго меню (Файл формата или Ручной ввод)
+    widgetFinished = false;
+    dialogWidth = 300;
+    dialogHeight = 480;
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -411,30 +395,59 @@ Widget _buildGreenWidget(int index) {
                             backgroundColor: Color(0xFF8FFF9A),
                           ),
                           onPressed: () {
-                            _saveData(textController.text, formHist, wayEnter);
-                            setState(() {
-                              dialogHeight = 335;
-                              dialogWidth = 307;
-                              _isWidgetsVisible = false;
-                              if (formHist == 'Круговая диаграмма' && wayEnter == 'Файл формата') {
-                                _isLastWidget = true;
-                              }
-                              if (formHist == 'Круговая диаграмма' && wayEnter == 'Ручной ввод') { 
-                                dialogHeight = 122;
-                                dialogWidth = 307;
-                              }
-                              if (formHist == 'Гистограмма' && wayEnter == 'Ручной ввод') { 
-                                dialogHeight = 240;
-                                dialogWidth = 307;
-                                HandHist = true;
-                              }
-                              if (formHist == 'График корелляции' && wayEnter == 'Ручной ввод') { 
+                            if (textController.text != "" && formHist != null && wayEnter != null) {
+                              _saveData(textController.text, formHist, wayEnter);
+                              setState(() {
                                 dialogHeight = 335;
                                 dialogWidth = 307;
-                                HandCorel = true;
+                                _isWidgetsVisible = false;
+                                if (formHist == 'Круговая диаграмма' && wayEnter == 'Файл формата') {
+                                  _isLastWidget = true;
+                                }
+                                if (formHist == 'Круговая диаграмма' && wayEnter == 'Ручной ввод') { 
+                                  dialogHeight = 122;
+                                  dialogWidth = 307;
+                                }
+                                if (formHist == 'Гистограмма') {
+                                  dialogHeight = 240;
+                                  dialogWidth = 307;
+                                  if(wayEnter == 'Ручной ввод') { 
+                                  HandHist = true;
+                                } else {
+                                  _isLastWidget = true;
+                                }
+                                }
+                                if (formHist == 'График корелляции' && wayEnter == 'Ручной ввод') { 
+                                  dialogHeight = 335;
+                                  dialogWidth = 307;
+                                  HandCorel = true;
+                                }
+                              });
+                            }
+                            else {
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      content: Container(
+                                        width: 218,
+                                        height: 37,
+                                        child: Center(
+                                          child: Text(
+                                            'Все поля должны быть заполнены',
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.red,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  );
                               }
-                            });
-                          },
+                            },
                           child: Text(
                             'Далее!',
                             style: TextStyle(color: Colors.black),
@@ -919,7 +932,7 @@ SizedBox(
                       top: 85,
                       left: 25,
                       child: Visibility(
-                        visible: !_isWidgetsVisible && !_isLastWidget ? true : false,
+                        visible: (!_isWidgetsVisible) || (wayEnter == 'Файл формата' && formHist == 'Круговая диаграмма' && !_isWidgetsVisible) ? true : false,
                         child: Container(
                           width: 250,
                           height: 40,
@@ -946,7 +959,7 @@ SizedBox(
                       top: 185,
                       left: 25,
                       child: Visibility(
-                        visible: !_isWidgetsVisible && formHist != 'Гистограмма' && !_isLastWidget ? true : false,
+                        visible: (!_isWidgetsVisible && formHist != 'Гистограмма' && !_isLastWidget) || (wayEnter == 'Файл формата' && formHist == 'Круговая диаграмма' && !_isWidgetsVisible)? true : false,
                         child: Container(
                           width: 250,
                           height: 40,
@@ -977,7 +990,7 @@ SizedBox(
                       top: 25, // Положение сверху
                       left: 40, // Положение слева
                       child: Visibility(
-                        visible: !_isWidgetsVisible && !_isLastWidget ? true : false,
+                        visible: (!_isWidgetsVisible) || (wayEnter == 'Файл формата' && formHist == 'Круговая диаграмма' && !_isWidgetsVisible) ? true : false,
                         child: Container(
                           width: 218, // Ширина
                           height: 37, // Высота
@@ -1004,7 +1017,7 @@ SizedBox(
                       top: 130, // Положение сверху
                       left: 40, // Положение слева
                       child: Visibility(
-                        visible: !_isWidgetsVisible && formHist != 'Гистограмма' && !_isLastWidget ? true : false,
+                        visible: (!_isWidgetsVisible && formHist != 'Гистограмма' && !_isLastWidget) || (wayEnter == 'Файл формата' && formHist == 'Круговая диаграмма' && !_isWidgetsVisible) ? true : false,
                         child: Container(
                           width: 218, // Ширина
                           height: 37, // Высота
@@ -1043,7 +1056,7 @@ SizedBox(
                                     border: OutlineInputBorder(),
                                   ),
                                   onChanged: (value) { ////////////Артему
-                                    colCount = int.parse(value);
+                                    inputValue = value;
                                   },
                                 ),
                               ),
@@ -1129,6 +1142,8 @@ SizedBox(
                           onPressed: () {
                             print(firstController.text);
                             print(secondController.text);
+                            print(colCount);
+
                             setState(() {
                             _isWidgetsVisible = false;
                             _isLastWidget = true;
@@ -1147,6 +1162,8 @@ SizedBox(
                             dialogHeight = 310;
                             HandCorel = true;
                             }
+                            if (inputValue.isNotEmpty)
+                              colCount = int.parse(inputValue);
                             });
                           },
                           child: Text(
