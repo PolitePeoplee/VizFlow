@@ -973,7 +973,7 @@ SizedBox(
                       top: 85,
                       left: 25,
                       child: Visibility(
-                        visible: (!_isWidgetsVisible) || (wayEnter == 'Файл формата' && formHist == 'Круговая диаграмма' && !_isWidgetsVisible) ? true : false,
+                        visible: (wayEnter == 'Файл формата' && formHist == 'Гистограмма' && _isLastWidget) || (!_isWidgetsVisible && !_isLastWidget) || (wayEnter == 'Файл формата' && formHist == 'Круговая диаграмма' && !_isWidgetsVisible) ? true : false,
                         child: Container(
                           width: 250,
                           height: 40,
@@ -1016,9 +1016,6 @@ SizedBox(
                             textAlign: TextAlign.center,
                             controller: secondController,
                             keyboardType: TextInputType.number,
-                            onChanged: (value) {
-                              colCount = int.parse(value);
-                            },
                             decoration: InputDecoration(
                               labelText: '',
                               border: InputBorder.none,
@@ -1031,7 +1028,7 @@ SizedBox(
                       top: 25, // Положение сверху
                       left: 40, // Положение слева
                       child: Visibility(
-                        visible: (!_isWidgetsVisible) || (wayEnter == 'Файл формата' && formHist == 'Круговая диаграмма' && !_isWidgetsVisible) ? true : false,
+                        visible: (wayEnter == 'Файл формата' && formHist == 'Гистограмма' && _isLastWidget) || (!_isWidgetsVisible && !_isLastWidget) || (wayEnter == 'Файл формата' && formHist == 'Круговая диаграмма' && !_isWidgetsVisible) ? true : false,
                         child: Container(
                           width: 218, // Ширина
                           height: 37, // Высота
