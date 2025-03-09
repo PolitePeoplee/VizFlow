@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:convert';
 import 'package:file_selector_aurora/file_selector_aurora.dart';
+import 'package:vizflow/guidence.dart';
 import 'package:vizflow/pie.dart';
 import 'package:vizflow/histogram.dart';
 import 'package:vizflow/lrgraph.dart';
@@ -313,11 +314,9 @@ Widget _buildGreenWidget(int index) {
         preferredSize: Size.fromHeight(60),
         child: AppBar(
           actions: [
-            Image.asset(
-          'assets/images/question.png',
-          width: 32,
-          height: 32,
-        ),
+            IconButton(
+            onPressed: (){}, 
+            icon: Image.asset('assets/images/question.png',width: 32,height: 32)),
           ],
           title: GradientText(
             'VizFlow',
@@ -386,15 +385,14 @@ Widget _buildGreenWidget(int index) {
     mainAxisAlignment: MainAxisAlignment.spaceAround,
     children: [
       TextButton(
-        onPressed: () {},
-        child: Image.asset(
-          'assets/images/archive.png',
-          width: 32, // Установите нужный размер
-          height: 28,
-        ),
-      ),
-      TextButton(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => GuidePage(),
+            )
+          );
+        },
         child: Image.asset(
           'assets/images/book.png',
           width: 25,
