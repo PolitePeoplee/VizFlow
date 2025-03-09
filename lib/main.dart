@@ -2,24 +2,43 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:convert';
 import 'package:file_selector_aurora/file_selector_aurora.dart';
-import 'package:vizflow/circledgramm.dart';
+import 'package:vizflow/pie.dart';
 import 'package:vizflow/histogram.dart';
 import 'package:vizflow/lrgraph.dart';
 import 'fileselector.dart' as fs;
+import 'package:provider/provider.dart';
 final navigatorKey = GlobalKey<NavigatorState>();
 
 void main() {
   FileSelectorAuroraKeyContainer.navigatorKey = navigatorKey;
-  runApp(VizFlowApp());
+  runApp(ChangeNotifierProvider(
+      create: (_) => ThemeProvider(),
+      child: VizFlowApp()));
 }
+class ThemeProvider with ChangeNotifier {
+  bool _isDarkMode = false;
 
+  bool get isDarkMode => _isDarkMode;
+
+  void toggleTheme() {
+    _isDarkMode = !_isDarkMode;
+    notifyListeners();
+  }
+
+  ThemeData get currentTheme => _isDarkMode ? ThemeData.dark() : ThemeData.light();
+}
 class VizFlowApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      navigatorKey: navigatorKey,
-      debugShowCheckedModeBanner: false,
-      home: HomePage(),
+    return Consumer<ThemeProvider>(
+    builder: (context, themeProvider, child) {
+      return MaterialApp(
+        navigatorKey: navigatorKey,
+        theme: themeProvider.currentTheme,
+        debugShowCheckedModeBanner: false,
+        home: HomePage(),
+      );
+      }
     );
   }
 }
@@ -55,6 +74,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   List<Offset> LRData = [];
   List<List<String>> chartsData = [];
   List<dynamic> filesData = [];
+  bool darkTheme = false;
 // Позиции виджетов
   bool _isPlusWidgetMoved = false; // Флаг для отслеживания смещения
   List<Widget> greenWidgets = []; // Список зеленых виджетов
@@ -286,6 +306,7 @@ Widget _buildGreenWidget(int index) {
   }
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: PreferredSize(
@@ -409,8 +430,10 @@ Widget _buildGreenWidget(int index) {
                       Text("Тёмная тема", style: TextStyle(fontSize: 20)),
                       SizedBox(width: 35),
                       Switch(
-                        value: false,
-                        onChanged: (bool value) {},
+                        value: themeProvider.isDarkMode,
+                        onChanged: (value) {
+                          themeProvider.toggleTheme();
+                        },
                       ),
                     ],
                   ),
