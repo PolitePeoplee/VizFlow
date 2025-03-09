@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:convert';
@@ -468,6 +467,8 @@ Widget _buildGreenWidget(int index) {
     bool HandCircle = false;
     bool _isWidgetsVisible = true;
     bool _isLastWidget = false;
+    formHist = null;
+    wayEnter = null;
     String inputValue = '';
     _isDataSourceExpanded = false; // состояние для управления видимостью выпадающего меню
     _isFileSourceExpanded = false; // состояние для управления видимостью второго меню (Файл формата или Ручной ввод)
