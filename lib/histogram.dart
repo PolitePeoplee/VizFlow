@@ -7,22 +7,30 @@ import 'package:flutter/rendering.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
-class PiePage extends StatefulWidget{
-  PiePage({super.key, required this.userData});
-  late List<PieData> userData;
+
+class HistogramPage extends StatefulWidget{
+  List<dynamic> userData;
+  int userColCount;
+  HistogramPage({super.key, required this.userData, required this.userColCount});
   @override
-  State<PiePage> createState() => _PiePageState();
+  State<HistogramPage> createState() => _HistogramPageState();
 }
-class PieData {
- PieData(this.xData, this.yData, [this.text]);
- final String xData;
- final num yData;
- String? text;
-}
-class _PiePageState extends State<PiePage>
+
+class _HistogramPageState extends State<HistogramPage>
 {
   GlobalKey _chartKey = GlobalKey();
-  Future<void> _saveChartAsPng(BuildContext context) async {
+  double setInterval(List<dynamic> data, int userColCount)
+  {
+    List<int> data1 = [];
+    for(int i = 0; i < data.length; i++)
+    {
+      data1.add(data[i]);
+    }
+    double interval;
+    interval = (data1.reduce(max) - data1.reduce(min)) / (userColCount - 1);
+    return interval;
+  }
+Future<void> _saveChartAsPng(BuildContext context) async {
   try {
     // Находим RenderRepaintBoundary по ключу
     RenderRepaintBoundary boundary =
@@ -59,45 +67,32 @@ class _PiePageState extends State<PiePage>
 }
   @override
   Widget build(BuildContext context) {
-    final List<PieData> pieData = widget.userData;
-    return Scaffold(
-      appBar: AppBar(
-            title: Text('График'),
+     List<dynamic> histogramData = widget.userData;
+        return Scaffold(
+          appBar: AppBar(
+            title: Center(child: Text('VizFlow')),
             actions: [
               // Кнопка для сохранения графика
               IconButton(
                 icon: Icon(Icons.save_alt),
                 onPressed: () => _saveChartAsPng(context),
                 ),
-              ElevatedButton(onPressed: (){
-                          Navigator.pop(context);
-                      },
-                      child: Text(
-                        'Назад', style: TextStyle(color: Colors.black),),
-                            ),
               ],
             ),
-      body: Center(
-        child: RepaintBoundary(
-          key: _chartKey,
-          child: Container(
-            child: SfCircularChart(
-                backgroundColor: Colors.white,
-              legend: Legend(isVisible: true),
-              series: <PieSeries<PieData, String>>[
-                PieSeries<PieData, String>(
-                  explode: false,
-                  explodeIndex: 0,
-                  dataSource: pieData,
-                  xValueMapper: (PieData data, _) => data.xData,
-                  yValueMapper: (PieData data, _) => data.yData,
-                  dataLabelMapper: (PieData data, _) => data.text,
-                  dataLabelSettings: DataLabelSettings(isVisible: true)),
-                ]
-              ),
-          )
-        )
-      )
-    );
+            body: Center(
+                child: RepaintBoundary(
+                key: _chartKey,
+                  child: Container(
+                    child: SfCartesianChart(
+                      backgroundColor: Colors.white,
+                      series: <CartesianSeries>[
+                      HistogramSeries<dynamic, double>(
+                      dataSource: histogramData,
+                      binInterval: setInterval(histogramData, widget.userColCount),
+                      yValueMapper: (dynamic data, _) => data)]),
+                          )
+                      )
+                    ),
+                  );
   }
 }

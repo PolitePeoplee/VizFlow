@@ -4,8 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'dart:convert';
 import 'package:file_selector_aurora/file_selector_aurora.dart';
 import 'package:vizflow/circledgramm.dart';
-import 'package:vizflow/gistogram.dart';
-import 'package:vizflow/graph.dart';
+import 'package:vizflow/histogram.dart';
+import 'package:vizflow/lrgraph.dart';
 import 'fileselector.dart' as fs;
 final navigatorKey = GlobalKey<NavigatorState>();
 
@@ -54,6 +54,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   List<TextEditingController> _textControllers = [];
   List<dynamic> gistData = [];
   List<Offset> LRData = [];
+  List<List<String>> chartsData = [];
+  List<dynamic> filesData = [];
 // Позиции виджетов
   bool _isPlusWidgetMoved = false; // Флаг для отслеживания смещения
   List<Widget> greenWidgets = []; // Список зеленых виджетов
@@ -122,10 +124,17 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           continue;
       }
   }
-  void fillPieDataFile(){
-    for(int i =0; i < a.data.length; i++)
+  void fillPieDataFile(index){
+    for(int i =0; i < filesData[index].length; i++)
     {
-      pieData.add(PieData(a.data[i][0], int.parse(a.data[i][1])));
+      pieData.add(PieData(filesData[index][i][0], int.parse(filesData[index][i][1])));
+    }
+  }
+  void fillGistDataFile(index)
+  {
+    for(int i =0; i < filesData[index].length; i++)
+    {
+      gistData.add(filesData[index][i]);
     }
   }
   void fillGistData(){
@@ -134,11 +143,11 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       gistData.add(int.parse(_textControllers[i].text));
     }
   }
-  void fillLRDataFile()
+  void fillLRDataFile(index)
   {
-    for(int i = 0; i < a.data.length; i++)
+    for(int i = 0; i < filesData[index].length; i++)
     {
-      LRData.add(Offset(double.parse(a.data[i][0]), double.parse(a.data[i][1])));
+      LRData.add(Offset(double.parse(filesData[index][i][0]), double.parse(filesData[index][i][1])));
     }
   }
   void fillLRData()
@@ -169,18 +178,21 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     print(jsonData); // Для проверки выведем в консоль
   }
 Widget _buildGreenWidget(int index) {
+    filesData.add(a.data);
     return Align(
       alignment: setAlignment(index),
       child: GestureDetector(
         onTap: () {
-                  if(formHist == "Гистограмма")
+                  if(chartsData[index][0] == "Гистограмма")
                   {
-                    if(wayEnter == "Файл формата")
+                    if(chartsData[index][1] == "Файл формата")
                     {
+                      gistData = [];
+                      fillGistDataFile(index);
                       Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => GistogramPage(userData: a.data, userColCount: colCount,),
+                        builder: (context) => HistogramPage(userData: gistData, userColCount: colCount,),
                         )
                       );
                     }
@@ -190,17 +202,17 @@ Widget _buildGreenWidget(int index) {
                       Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => GistogramPage(userData: gistData, userColCount: colCount),
+                        builder: (context) => HistogramPage(userData: gistData, userColCount: colCount),
                         )
                       );
                     }
                   }
-                  else if(formHist == "Круговая диаграмма")
+                  else if(chartsData[index][0] == "Круговая диаграмма")
                   {
-                    if(wayEnter == "Файл формата")
+                    if(chartsData[index][1] == "Файл формата")
                     {
                       pieData = [];
-                      fillPieDataFile();
+                      fillPieDataFile(index);
                       Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -219,12 +231,12 @@ Widget _buildGreenWidget(int index) {
                       );
                     }
                   }
-                  else if(formHist == "График корреляции")
+                  else if(chartsData[index][0] == "График корреляции")
                   {
-                    if(wayEnter == "Файл формата")
+                    if(chartsData[index][1] == "Файл формата")
                     {
                       LRData = [];
-                      fillLRDataFile();
+                      fillLRDataFile(index);
                       Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -446,12 +458,14 @@ Widget _buildGreenWidget(int index) {
                                 dialogHeight = 335;
                                 dialogWidth = 307;
                                 _isWidgetsVisible = false;
-                                if (formHist == 'Круговая диаграмма' && wayEnter == 'Файл формата') {
+                                if (formHist == 'Круговая диаграмма') {
+                                if (wayEnter == 'Файл формата') {
                                   _isLastWidget = true;
                                 }
-                                if (formHist == 'Круговая диаграмма' && wayEnter == 'Ручной ввод') { 
+                                else {
                                   dialogHeight = 122;
                                   dialogWidth = 307;
+                                }
                                 }
                                 if (formHist == 'Гистограмма') {
                                   dialogHeight = 240;
@@ -459,13 +473,20 @@ Widget _buildGreenWidget(int index) {
                                   if(wayEnter == 'Ручной ввод') { 
                                   HandHist = true;
                                 } else {
+                                  dialogHeight = 305;
+                                  dialogWidth = 307;
                                   _isLastWidget = true;
                                 }
                                 }
-                                if (formHist == 'График корелляции' && wayEnter == 'Ручной ввод') { 
+                                if (formHist == 'График корреляции') {
                                   dialogHeight = 335;
                                   dialogWidth = 307;
+                                  if (wayEnter == 'Ручной ввод') { 
                                   HandCorel = true;
+                                }
+                                else {
+                                  _isLastWidget = true;
+                                }
                                 }
                               });
                             }
@@ -1074,9 +1095,9 @@ SizedBox(
                         ),
                       ),
                     ),
-                    if (HandHist && !_isLastWidget) ... [
+                    if ((HandHist && !_isLastWidget) || (wayEnter == 'Файл формата' && formHist == 'Гистограмма' && _isLastWidget)) ... [
                     Positioned(
-                          bottom: 55,
+                          bottom: HandHist ? 65 : 125,
                           right: 40,
                           child: Row(
                             children: [
@@ -1094,17 +1115,16 @@ SizedBox(
                                     border: OutlineInputBorder(),
                                   ),
                                   onChanged: (value) { ////////////Артему
-                                    inputValue = value;
+                                    colCount = int.parse(value);
                                   },
                                 ),
                               ),
                             ],
-                            
                           ),
                         ),
                     ],
                     if (HandCorel && !_isLastWidget) ... [
-                    Positioned(
+                      Positioned(
                           bottom: 55,
                           right: 40,
                           child: Row(
@@ -1283,7 +1303,9 @@ SizedBox(
     return GestureDetector(
       onTap: () {
         setState(() {
-          formHist = value; // присваиваем выбранное значение
+          formHist = value;
+          chartsData.add([value]);
+           // присваиваем выбранное значение
           _isDataSourceExpanded = false; // скрываем меню после выбора
         });
       },
@@ -1304,7 +1326,8 @@ SizedBox(
     return GestureDetector(
       onTap: () {
         setState(() {
-          wayEnter = value; // присваиваем выбранный источник данных
+          wayEnter = value;
+          chartsData[alignInt].add(value); // присваиваем выбранный источник данных
           _isFileSourceExpanded = false; // скрываем меню после выбора
         });
       },
