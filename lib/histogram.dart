@@ -108,7 +108,7 @@ class _HistogramPageState extends State<HistogramPage> {
     ],
   ),
   bottomNavigationBar: BottomAppBar(
-    color: themeProvider.isDarkMode ? Colors.black : Colors.white, // Цвет BottomAppBar
+    //color: themeProvider.isDarkMode ? Colors.black : Colors.white, // Цвет BottomAppBar
     shape: CircularNotchedRectangle(),
     notchMargin: 8.0,
     child: Row(
@@ -135,7 +135,7 @@ class _HistogramPageState extends State<HistogramPage> {
               context: context,
               builder: (BuildContext context) {
                 return Dialog(
-                  backgroundColor: themeProvider.isDarkMode ? Colors.black : Colors.white, // Цвет фона диалога
+                  //backgroundColor: themeProvider.isDarkMode ? Colors.black : Colors.white, // Цвет фона диалога
                   child: Container(
                     width: 307,
                     height: 185,
@@ -155,7 +155,7 @@ class _HistogramPageState extends State<HistogramPage> {
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
                               SizedBox(width: 35),
-                              Text("${themeProvider.isDarkMode ? "Светлая" : "Тёмная"} тема", style: TextStyle(fontSize: 20), selectionColor: themeProvider.isDarkMode ? Colors.white : Colors.black,),
+                              Text("Тёмная тема", style: TextStyle(fontSize: 20), selectionColor: themeProvider.isDarkMode ? Colors.white : Colors.black,),
                               SizedBox(width: 35),
                               Switch(
                                 value: themeProvider.isDarkMode,

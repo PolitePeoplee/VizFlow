@@ -150,7 +150,7 @@ class _LRPageState extends State<LRPage> {
     final m = regressionParams['m']!;
     final b = regressionParams['b']!;
     return Scaffold(
-      backgroundColor: Colors.white,
+      //backgroundColor: Colors.white,
       appBar: AppBar(
             title: Center( child: Text('VizFlow')),
             actions: [
@@ -165,7 +165,7 @@ class _LRPageState extends State<LRPage> {
         child: RepaintBoundary(
         key: _chartKey,
         child: Container(
-          color: themeProvider.isDarkMode ? Colors.black : Colors.white,
+          //color: themeProvider.isDarkMode ? Colors.black : Colors.white,
           child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -188,7 +188,7 @@ class _LRPageState extends State<LRPage> {
           )
         ),
         bottomNavigationBar: BottomAppBar(
-    color: themeProvider.isDarkMode ? Colors.black : Colors.white, // Цвет BottomAppBar
+    //color: themeProvider.isDarkMode ? Colors.black : Colors.white, // Цвет BottomAppBar
     shape: CircularNotchedRectangle(),
     notchMargin: 8.0,
     child: Row(

@@ -322,7 +322,7 @@ Widget _buildGreenWidget(int index) {
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     return Scaffold(
-      backgroundColor: themeProvider.isDarkMode ? Colors.black : Colors.white,
+      //backgroundColor: themeProvider.isDarkMode ? Colors.black : Colors.white,
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(60),
         child: AppBar(
@@ -345,7 +345,7 @@ Widget _buildGreenWidget(int index) {
             ),
           ),
           centerTitle: true,
-          backgroundColor: themeProvider.isDarkMode ? Colors.black : Colors.white,
+          //backgroundColor: themeProvider.isDarkMode ? Colors.black : Colors.white,
           elevation: 0,
         ),
       ),
@@ -391,7 +391,7 @@ Widget _buildGreenWidget(int index) {
         ],
       ),
       bottomNavigationBar: BottomAppBar(
-    color: themeProvider.isDarkMode ? Colors.black : Colors.white, // Цвет BottomAppBar
+    //color: themeProvider.isDarkMode ? Colors.black : Colors.white, // Цвет BottomAppBar
     shape: CircularNotchedRectangle(),
     notchMargin: 8.0,
     child: Row(
@@ -418,7 +418,7 @@ Widget _buildGreenWidget(int index) {
               context: context,
               builder: (BuildContext context) {
                 return Dialog(
-                  backgroundColor: themeProvider.isDarkMode ? Colors.black : Colors.white, // Цвет фона диалога
+                  //backgroundColor: themeProvider.isDarkMode ? Colors.black : Colors.white, // Цвет фона диалога
                   child: Container(
                     width: 307,
                     height: 185,
@@ -438,7 +438,7 @@ Widget _buildGreenWidget(int index) {
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
                               SizedBox(width: 35),
-                              Text("${themeProvider.isDarkMode ? "Светлая" : "Тёмная"} тема", style: TextStyle(fontSize: 20), selectionColor: themeProvider.isDarkMode ? Colors.white : Colors.black,),
+                              Text("Тёмная тема", style: TextStyle(fontSize: 20), selectionColor: themeProvider.isDarkMode ? Colors.white : Colors.black,),
                               SizedBox(width: 35),
                               Switch(
                                 value: themeProvider.isDarkMode,
@@ -458,7 +458,7 @@ Widget _buildGreenWidget(int index) {
                               height: 27,
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Color(0xFFF2F2F2), // Цвет фона кнопки
+                                  //backgroundColor: Color(0xFFF2F2F2), // Цвет фона кнопки
                                   shadowColor: Colors.black.withOpacity(0.2), // Цвет тени
                                   elevation: 5, // Уровень тени
                                 ),
@@ -467,7 +467,7 @@ Widget _buildGreenWidget(int index) {
                                 },
                                 child: Text(
                                   'Ок',
-                                  style: TextStyle(color: Colors.black),
+                                  //style: TextStyle(color: Colors.black),
                                 ),
                               ),
                             ),
@@ -512,6 +512,7 @@ Widget _buildGreenWidget(int index) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
+          final themeProvider = Provider.of<ThemeProvider>(context);
         return StatefulBuilder(
           builder: (context, setState) {
             return Dialog(
@@ -523,6 +524,7 @@ Widget _buildGreenWidget(int index) {
                 width: dialogWidth,
                 height: dialogHeight,
                 decoration: BoxDecoration(
+                  //color: themeProvider.isDarkMode ? Colors.black : Colors.white,
                   gradient: LinearGradient(
                     colors: [Color(0xFF75EC8E), Color(0xFF91E5E6)],
                     begin: Alignment.topCenter,
@@ -530,7 +532,7 @@ Widget _buildGreenWidget(int index) {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Color(0x40000000),
+                      //color: Color(0x40000000),
                       blurRadius: 4,
                       offset: Offset(0, 4),
                     ),
@@ -614,6 +616,7 @@ Widget _buildGreenWidget(int index) {
                           ),
                         ),
                         child: TextField(
+                          style: TextStyle(color: Colors.black),
                           controller: textController,
                           textAlign: TextAlign.center,
                           decoration: InputDecoration(
@@ -651,6 +654,7 @@ Widget _buildGreenWidget(int index) {
                                     formHist ?? 'Тип графика',
                                     textAlign: TextAlign.center, // Центрируем текст
                                     style: TextStyle(
+                                      color: Colors.black,
                                       fontSize: 16,
                                       fontWeight: FontWeight.w400,
                                       fontFamily: 'Roboto', // Дефолтный шрифт
@@ -724,6 +728,7 @@ Widget _buildGreenWidget(int index) {
                                   wayEnter ?? 'Источник данных',
                                   textAlign: TextAlign.center, // Центрируем текст
                                   style: TextStyle(
+                                    color: Colors.black,
                                     fontSize: 16,
                                     fontWeight: FontWeight.w400,
                                     fontFamily: 'Roboto', // Дефолтный шрифт
@@ -838,6 +843,7 @@ Widget _buildGreenWidget(int index) {
                                         border: Border.all(color: Color(0x65656587), width: 1),
                                       ),
                                       child: TextField(
+                                        style: TextStyle(color: Colors.black),
                                         textAlign: TextAlign.center,
                                         controller: _textControllers[index], //контроллеры(Артему)//////////////////////////////////////////////////
                                         decoration: InputDecoration(
@@ -931,6 +937,7 @@ SizedBox(
                   border: Border.all(color: Color(0x65656587), width: 1),
                 ),
                 child: TextField(
+                  style: TextStyle(color: Colors.black),
                   textAlign: TextAlign.center,
                   controller: _textControllers[index * 2], // Контроллер для X
                   decoration: InputDecoration(
@@ -964,6 +971,7 @@ SizedBox(
                   border: Border.all(color: Color(0x65656587), width: 1),
                 ),
                 child: TextField(
+                  style: TextStyle(color: Colors.black),
                   textAlign: TextAlign.center,
                   controller: _textControllers[index * 2 + 1], // Контроллер для Y
                   decoration: InputDecoration(
@@ -1052,6 +1060,7 @@ SizedBox(
                                         border: Border.all(color: Color(0x65656587), width: 1),
                                       ),
                                       child: TextField(
+                                        style: TextStyle(color: Colors.black),
                                         textAlign: TextAlign.center,
                                         controller: _textControllers[index], //контроллеры(Артему)//////////////////////////////////////////////////
                                         decoration: InputDecoration(
@@ -1095,6 +1104,7 @@ SizedBox(
                             ),
                           ),
                           child: TextField(
+                            style: TextStyle(color: Colors.black),
                             textAlign: TextAlign.center,
                             controller: firstController,
                             decoration: InputDecoration(
@@ -1123,6 +1133,7 @@ SizedBox(
                             ),
                           ),
                           child: TextField(
+                            style: TextStyle(color: Colors.black),
                             textAlign: TextAlign.center,
                             controller: secondController,
                             decoration: InputDecoration(
@@ -1199,6 +1210,7 @@ SizedBox(
                                 width: 50,
                                 height: 30,
                                 child: TextField(
+                                  style: TextStyle(color: Colors.black),
                                   keyboardType: TextInputType.number,
                                   decoration: InputDecoration(
                                     border: OutlineInputBorder(),
@@ -1229,6 +1241,7 @@ SizedBox(
                                 width: 50,
                                 height: 30,
                                 child: TextField(
+                                  style: TextStyle(color: Colors.black),
                                   keyboardType: TextInputType.number,
                                   decoration: InputDecoration(
                                     border: OutlineInputBorder(),
@@ -1366,6 +1379,7 @@ SizedBox(
                                 width: 50,
                                 height: 30,
                                 child: TextField(
+                                  style: TextStyle(color: Colors.black),
                                   keyboardType: TextInputType.number,
                                   decoration: InputDecoration(
                                     border: OutlineInputBorder(),
@@ -1410,7 +1424,7 @@ SizedBox(
             bottom: BorderSide(color: Color(0xFF65656587), width: 1), // линия между элементами
           ),
         ),
-        child: Center(child: Text(value)),
+        child: Center(child: Text(value, style: TextStyle(color: Colors.black))),
       ),
     );
   }
@@ -1431,7 +1445,7 @@ SizedBox(
             bottom: BorderSide(color: Color(0xFF65656587), width: 1),
           ),
         ),
-        child: Center(child: Text(value)),
+        child: Center(child: Text(value, style: TextStyle(color: Colors.black))),
       ),
     );
   }

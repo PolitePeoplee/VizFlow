@@ -82,7 +82,7 @@ class _PiePageState extends State<PiePage>
           key: _chartKey,
           child: Container(
             child: SfCircularChart(
-                backgroundColor: themeProvider.isDarkMode ? Colors.black : Colors.white,
+                //backgroundColor: themeProvider.isDarkMode ? Colors.black : Colors.white,
               legend: Legend(isVisible: true),
               series: <PieSeries<PieData, String>>[
                 PieSeries<PieData, String>(
@@ -99,7 +99,7 @@ class _PiePageState extends State<PiePage>
         )
       ),
       bottomNavigationBar: BottomAppBar(
-    color: themeProvider.isDarkMode ? Colors.black : Colors.white, // Цвет BottomAppBar
+    //color: themeProvider.isDarkMode ? Colors.black : Colors.white, // Цвет BottomAppBar
     shape: CircularNotchedRectangle(),
     notchMargin: 8.0,
     child: Row(
@@ -126,7 +126,7 @@ class _PiePageState extends State<PiePage>
               context: context,
               builder: (BuildContext context) {
                 return Dialog(
-                  backgroundColor: themeProvider.isDarkMode ? Colors.black : Colors.white, // Цвет фона диалога
+                  //backgroundColor: themeProvider.isDarkMode ? Colors.black : Colors.white, // Цвет фона диалога
                   child: Container(
                     width: 307,
                     height: 185,
@@ -146,7 +146,7 @@ class _PiePageState extends State<PiePage>
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
                               SizedBox(width: 35),
-                              Text("${themeProvider.isDarkMode ? "Светлая" : "Тёмная"} тема", style: TextStyle(fontSize: 20), selectionColor: themeProvider.isDarkMode ? Colors.white : Colors.black,),
+                              Text("Тёмная тема", style: TextStyle(fontSize: 20), selectionColor: themeProvider.isDarkMode ? Colors.white : Colors.black,),
                               SizedBox(width: 35),
                               Switch(
                                 value: themeProvider.isDarkMode,
