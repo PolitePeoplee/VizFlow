@@ -72,7 +72,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   List<TextEditingController> _textControllers = [];
   List<dynamic> gistData = [];
   List<Offset> LRData = [];
-  List<List<String>> chartsData = [];
+  List<List<String?>> chartsData = [];
   List<dynamic> filesData = [];
   bool darkTheme = false;
 // Позиции виджетов
@@ -1268,6 +1268,7 @@ SizedBox(
                             backgroundColor: Color(0xFF8FFF9A),
                           ),
                           onPressed: () {
+                            chartsData.add([formHist, wayEnter]);
                             _addGreenWidget(); // Добавление нового зеленого виджета
                             _updateWidgetPosition();
                             HandCircle = false;
@@ -1409,7 +1410,6 @@ SizedBox(
       onTap: () {
         setState(() {
           formHist = value;
-          chartsData.add([value]);
            // присваиваем выбранное значение
           _isDataSourceExpanded = false; // скрываем меню после выбора
         });
@@ -1431,8 +1431,7 @@ SizedBox(
     return GestureDetector(
       onTap: () {
         setState(() {
-          wayEnter = value;
-          chartsData[alignInt].add(value); // присваиваем выбранный источник данных
+          wayEnter = value; // присваиваем выбранный источник данных
           _isFileSourceExpanded = false; // скрываем меню после выбора
         });
       },
