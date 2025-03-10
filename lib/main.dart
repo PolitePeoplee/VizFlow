@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'dart:convert';
 import 'package:file_selector_aurora/file_selector_aurora.dart';
 import 'package:vizflow/circledgramm.dart';
@@ -69,6 +68,30 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         _isPlusWidgetMoved = true; // Устанавливаем флаг
       }
     });
+  }
+
+  void ErrorWindow() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Container(
+            width: 218,
+            height: 37,
+            child: Center(
+              child: Text(
+                'Все поля должны быть заполнены',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.red,
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   void _addGreenWidget() {
@@ -555,27 +578,7 @@ Widget _buildGreenWidget(int index) {
                               });
                             }
                             else {
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      content: Container(
-                                        width: 218,
-                                        height: 37,
-                                        child: Center(
-                                          child: Text(
-                                            'Все поля должны быть заполнены',
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              color: Colors.red,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                  );
+                                ErrorWindow();
                               }
                             },
                           child: Text(
@@ -612,44 +615,48 @@ Widget _buildGreenWidget(int index) {
                       ),
                     ),
                     Positioned(
-                      top: 85,
-                      left: 25,
-                      child: Container(
-                        width: 250,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: Color(0xFFDDFFE4),
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: Color(0x65656587), width: 1),
-                        ),
-                        child: GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              _isDataSourceExpanded = !_isDataSourceExpanded;
-                            });
-                          },
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                formHist ?? 'Тип графика',
-                                style: GoogleFonts.roboto(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
+                        top: 85,
+                        left: 25,
+                        child: Container(
+                          width: 250,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: Color(0xFFDDFFE4),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: Color(0x65656587), width: 1),
+                          ),
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _isDataSourceExpanded = !_isDataSourceExpanded;
+                              });
+                            },
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center, // Центрируем по горизонтали
+                              crossAxisAlignment: CrossAxisAlignment.center, // Центрируем по вертикали
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    formHist ?? 'Тип графика',
+                                    textAlign: TextAlign.center, // Центрируем текст
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w400,
+                                      fontFamily: 'Roboto', // Дефолтный шрифт
+                                    ),
+                                  ),
+                                ),
+                                Icon(
+                                  _isDataSourceExpanded
+                                      ? Icons.arrow_drop_up
+                                      : Icons.arrow_drop_down,
                                   color: Colors.black,
                                 ),
-                              ),
-                              Icon(
-                                _isDataSourceExpanded
-                                    ? Icons.arrow_drop_up
-                                    : Icons.arrow_drop_down,
-                                color: Colors.black,
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
                     Positioned(
                       top: 145,
                       left: 25,
@@ -698,14 +705,18 @@ Widget _buildGreenWidget(int index) {
                             });
                           },
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            mainAxisAlignment: MainAxisAlignment.center, // Центрируем по горизонтали
+                            crossAxisAlignment: CrossAxisAlignment.center, // Центрируем по вертикали
                             children: [
-                              Text(
-                                wayEnter ?? 'Источник данных',
-                                style: GoogleFonts.roboto(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.black,
+                              Expanded(
+                                child: Text(
+                                  wayEnter ?? 'Источник данных',
+                                  textAlign: TextAlign.center, // Центрируем текст
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w400,
+                                    fontFamily: 'Roboto', // Дефолтный шрифт
+                                  ),
                                 ),
                               ),
                               Icon(
@@ -883,6 +894,7 @@ SizedBox(
         return Padding(
           padding: const EdgeInsets.only(bottom: 10.0), // Отступ между строками
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.start, // Выравнивание по левому краю
             children: [
               // Контейнер с текстом "X" и полем ввода
@@ -912,7 +924,7 @@ SizedBox(
                   controller: _textControllers[index * 2], // Контроллер для X
                   decoration: InputDecoration(
                     labelText: '',
-                    contentPadding: EdgeInsets.symmetric(vertical: 0), // Убираем вертикальные отступы
+                    contentPadding: EdgeInsets.symmetric(vertical: 13),
                     border: InputBorder.none,
                   ),
                 ),
@@ -945,6 +957,7 @@ SizedBox(
                   controller: _textControllers[index * 2 + 1], // Контроллер для Y
                   decoration: InputDecoration(
                     labelText: '',
+                    contentPadding: EdgeInsets.symmetric(vertical: 13), // Убираем вертикальные отступы
                     border: InputBorder.none,
                   ),
                 ),
@@ -1058,7 +1071,7 @@ SizedBox(
                       top: 85,
                       left: 25,
                       child: Visibility(
-                        visible: (wayEnter == 'Файл формата' && formHist == 'Гистограмма' && _isLastWidget) || (!_isWidgetsVisible && !_isLastWidget) || (wayEnter == 'Файл формата' && formHist == 'Круговая диаграмма' && !_isWidgetsVisible) ? true : false,
+                        visible: (wayEnter == 'Файл формата' && formHist == 'График корреляции' && _isLastWidget) || (wayEnter == 'Файл формата' && formHist == 'Гистограмма' && _isLastWidget) || (!_isWidgetsVisible && !_isLastWidget) || (wayEnter == 'Файл формата' && formHist == 'Круговая диаграмма' && !_isWidgetsVisible) ? true : false,
                         child: Container(
                           width: 250,
                           height: 40,
@@ -1076,6 +1089,7 @@ SizedBox(
                             decoration: InputDecoration(
                               labelText: '',
                               border: InputBorder.none,
+                              contentPadding: EdgeInsets.symmetric(vertical: 13), // Отступы по вертикали
                             ),
                           ),
                         ),
@@ -1085,7 +1099,7 @@ SizedBox(
                       top: 185,
                       left: 25,
                       child: Visibility(
-                        visible: (!_isWidgetsVisible && formHist != 'Гистограмма' && !_isLastWidget) || (wayEnter == 'Файл формата' && formHist == 'Круговая диаграмма' && !_isWidgetsVisible)? true : false,
+                        visible: (wayEnter == 'Файл формата' && formHist == 'График корреляции' && _isLastWidget) || (!_isWidgetsVisible && formHist != 'Гистограмма' && !_isLastWidget) || (wayEnter == 'Файл формата' && formHist == 'Круговая диаграмма' && !_isWidgetsVisible)? true : false,
                         child: Container(
                           width: 250,
                           height: 40,
@@ -1100,10 +1114,10 @@ SizedBox(
                           child: TextField(
                             textAlign: TextAlign.center,
                             controller: secondController,
-                            keyboardType: TextInputType.number,
                             decoration: InputDecoration(
                               labelText: '',
                               border: InputBorder.none,
+                              contentPadding: EdgeInsets.symmetric(vertical: 13), // Отступы по вертикали
                             ),
                           ),
                         ),
@@ -1113,7 +1127,7 @@ SizedBox(
                       top: 25, // Положение сверху
                       left: 40, // Положение слева
                       child: Visibility(
-                        visible: (wayEnter == 'Файл формата' && formHist == 'Гистограмма' && _isLastWidget) || (!_isWidgetsVisible && !_isLastWidget) || (wayEnter == 'Файл формата' && formHist == 'Круговая диаграмма' && !_isWidgetsVisible) ? true : false,
+                        visible: (wayEnter == 'Файл формата' && formHist == 'График корреляции' && _isLastWidget) || (wayEnter == 'Файл формата' && formHist == 'Гистограмма' && _isLastWidget) || (!_isWidgetsVisible && !_isLastWidget) || (wayEnter == 'Файл формата' && formHist == 'Круговая диаграмма' && !_isWidgetsVisible) ? true : false,
                         child: Container(
                           width: 218, // Ширина
                           height: 37, // Высота
@@ -1140,7 +1154,7 @@ SizedBox(
                       top: 130, // Положение сверху
                       left: 40, // Положение слева
                       child: Visibility(
-                        visible: (!_isWidgetsVisible && formHist != 'Гистограмма' && !_isLastWidget) || (wayEnter == 'Файл формата' && formHist == 'Круговая диаграмма' && !_isWidgetsVisible) ? true : false,
+                        visible: (wayEnter == 'Файл формата' && formHist == 'График корреляции' && _isLastWidget) || (!_isWidgetsVisible && formHist != 'Гистограмма' && !_isLastWidget) || (wayEnter == 'Файл формата' && formHist == 'Круговая диаграмма' && !_isWidgetsVisible) ? true : false,
                         child: Container(
                           width: 218, // Ширина
                           height: 37, // Высота
@@ -1177,9 +1191,10 @@ SizedBox(
                                   keyboardType: TextInputType.number,
                                   decoration: InputDecoration(
                                     border: OutlineInputBorder(),
+                                    contentPadding: EdgeInsets.symmetric(horizontal: 13), // Отступы по вертикали
                                   ),
                                   onChanged: (value) { ////////////Артему
-                                    colCount = int.parse(value);
+                                    inputValue = value;
                                   },
                                 ),
                               ),
@@ -1206,6 +1221,7 @@ SizedBox(
                                   keyboardType: TextInputType.number,
                                   decoration: InputDecoration(
                                     border: OutlineInputBorder(),
+                                    contentPadding: EdgeInsets.symmetric(horizontal: 13), // Отступы по вертикали
                                   ),
                                   onChanged: (value) { ////////////Артему
                                     inputValue = value;
@@ -1342,9 +1358,10 @@ SizedBox(
                                   keyboardType: TextInputType.number,
                                   decoration: InputDecoration(
                                     border: OutlineInputBorder(),
+                                    contentPadding: EdgeInsets.symmetric(horizontal: 13), // Отступы по вертикали
                                   ),
                                   onChanged: (value) {
-                                    value == "" ? "" : colCount = int.parse(value);
+                                    inputValue = value;
                                   },
                                 ),
                               ),
