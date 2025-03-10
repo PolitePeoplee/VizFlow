@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
@@ -62,19 +61,13 @@ class _PiePageState extends State<PiePage>
     final List<PieData> pieData = widget.userData;
     return Scaffold(
       appBar: AppBar(
-            title: Text('График'),
+            title: Center( child: Text('VizFlow')),
             actions: [
               // Кнопка для сохранения графика
               IconButton(
                 icon: Icon(Icons.save_alt),
                 onPressed: () => _saveChartAsPng(context),
                 ),
-              ElevatedButton(onPressed: (){
-                          Navigator.pop(context);
-                      },
-                      child: Text(
-                        'Назад', style: TextStyle(color: Colors.black),),
-                            ),
               ],
             ),
       body: Center(
