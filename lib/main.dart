@@ -7,6 +7,7 @@ import 'package:vizflow/histogram.dart';
 import 'package:vizflow/lrgraph.dart';
 import 'fileselector.dart' as fs;
 import 'package:provider/provider.dart';
+import 'darktheme.dart';
 final navigatorKey = GlobalKey<NavigatorState>();
 
 void main() {
@@ -15,18 +16,7 @@ void main() {
       create: (_) => ThemeProvider(),
       child: VizFlowApp()));
 }
-class ThemeProvider with ChangeNotifier {
-  bool _isDarkMode = false;
 
-  bool get isDarkMode => _isDarkMode;
-
-  void toggleTheme() {
-    _isDarkMode = !_isDarkMode;
-    notifyListeners();
-  }
-
-  ThemeData get currentTheme => _isDarkMode ? ThemeData.dark() : ThemeData.light();
-}
 class VizFlowApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -332,7 +322,7 @@ Widget _buildGreenWidget(int index) {
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: themeProvider.isDarkMode ? Colors.black : Colors.white,
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(60),
         child: AppBar(
@@ -355,7 +345,7 @@ Widget _buildGreenWidget(int index) {
             ),
           ),
           centerTitle: true,
-          backgroundColor: Colors.white,
+          backgroundColor: themeProvider.isDarkMode ? Colors.black : Colors.white,
           elevation: 0,
         ),
       ),
@@ -401,104 +391,104 @@ Widget _buildGreenWidget(int index) {
         ],
       ),
       bottomNavigationBar: BottomAppBar(
-  color: Colors.white,
-  shape: CircularNotchedRectangle(),
-  notchMargin: 8.0,
-  child: Row(
-    mainAxisAlignment: MainAxisAlignment.spaceAround,
-    children: [
-      TextButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => GuidePage(),
-            )
-          );
-        },
-        child: Image.asset(
-          'assets/images/book.png',
-          width: 25,
-          height: 28,
+    color: themeProvider.isDarkMode ? Colors.black : Colors.white, // Цвет BottomAppBar
+    shape: CircularNotchedRectangle(),
+    notchMargin: 8.0,
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        TextButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => GuidePage(),
+              ),
+            );
+          },
+          child: Image.asset(
+            'assets/images/book.png',
+            width: 25,
+            height: 28,
+          ),
         ),
-      ),
- TextButton(
-  onPressed: () {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: Color(0xFFEBE7E7), // Цвет фона диалога
-          child: Container(
-            width: 307,
-            height: 185,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Center(
-                  child: Text("Настройки", style: TextStyle(fontSize: 20)),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                  child: Divider(thickness: 1),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 15.0, left: 10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      SizedBox(width: 35),
-                      Text("Тёмная тема", style: TextStyle(fontSize: 20)),
-                      SizedBox(width: 35),
-                      Switch(
-                        value: themeProvider.isDarkMode,
-                        onChanged: (value) {
-                          themeProvider.toggleTheme();
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 30, right: 100),
-                  child: Align(
-                    alignment: Alignment.centerRight,
-                    child: SizedBox(
-                      width: 115,
-                      height: 27,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFFF2F2F2), // Цвет фона кнопки
-                          shadowColor: Colors.black.withOpacity(0.2), // Цвет тени
-                          elevation: 5, // Уровень тени
+        TextButton(
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return Dialog(
+                  backgroundColor: themeProvider.isDarkMode ? Colors.black : Colors.white, // Цвет фона диалога
+                  child: Container(
+                    width: 307,
+                    height: 185,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Center(
+                          child: Text("Настройки", style: TextStyle(fontSize: 20)),
                         ),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: Text(
-                          'Ок',
-                          style: TextStyle(color: Colors.black),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                          child: Divider(thickness: 1),
                         ),
-                      ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 15.0, left: 10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              SizedBox(width: 35),
+                              Text("${themeProvider.isDarkMode ? "Светлая" : "Тёмная"} тема", style: TextStyle(fontSize: 20), selectionColor: themeProvider.isDarkMode ? Colors.white : Colors.black,),
+                              SizedBox(width: 35),
+                              Switch(
+                                value: themeProvider.isDarkMode,
+                                onChanged: (value) {
+                                  themeProvider.toggleTheme();
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 30, right: 100),
+                          child: Align(
+                            alignment: Alignment.centerRight,
+                            child: SizedBox(
+                              width: 115,
+                              height: 27,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Color(0xFFF2F2F2), // Цвет фона кнопки
+                                  shadowColor: Colors.black.withOpacity(0.2), // Цвет тени
+                                  elevation: 5, // Уровень тени
+                                ),
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: Text(
+                                  'Ок',
+                                  style: TextStyle(color: Colors.black),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-              ],
-            ),
+                );
+              },
+            );
+          },
+          child: Image.asset(
+            'assets/images/settings.png',
+            width: 28,
+            height: 28,
           ),
-        );
-      },
-    );
-  },
-  child: Image.asset(
-    'assets/images/settings.png',
-    width: 28,
-    height: 28,
+        ),
+      ], // Закрывающая скобка для Row
+    ),
   ),
-),
-    ],
-  ),
-),
     );
   }
 
@@ -1250,7 +1240,6 @@ SizedBox(
                                 ),
                               ),
                             ],
-                            
                           ),
                         ),
                     ],
