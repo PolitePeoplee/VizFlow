@@ -1,25 +1,44 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'dart:convert';
 import 'package:file_selector_aurora/file_selector_aurora.dart';
-import 'package:vizflow/circledgramm.dart';
-import 'package:vizflow/gistogram.dart';
-import 'package:vizflow/graph.dart';
+import 'package:vizflow/guidence.dart';
+import 'package:vizflow/pie.dart';
+import 'package:vizflow/histogram.dart';
+import 'package:vizflow/lrgraph.dart';
 import 'fileselector.dart' as fs;
+import 'package:provider/provider.dart';
 final navigatorKey = GlobalKey<NavigatorState>();
 
 void main() {
   FileSelectorAuroraKeyContainer.navigatorKey = navigatorKey;
-  runApp(VizFlowApp());
+  runApp(ChangeNotifierProvider(
+      create: (_) => ThemeProvider(),
+      child: VizFlowApp()));
 }
+class ThemeProvider with ChangeNotifier {
+  bool _isDarkMode = false;
 
+  bool get isDarkMode => _isDarkMode;
+
+  void toggleTheme() {
+    _isDarkMode = !_isDarkMode;
+    notifyListeners();
+  }
+
+  ThemeData get currentTheme => _isDarkMode ? ThemeData.dark() : ThemeData.light();
+}
 class VizFlowApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      navigatorKey: navigatorKey,
-      debugShowCheckedModeBanner: false,
-      home: HomePage(),
+    return Consumer<ThemeProvider>(
+    builder: (context, themeProvider, child) {
+      return MaterialApp(
+        navigatorKey: navigatorKey,
+        theme: themeProvider.currentTheme,
+        debugShowCheckedModeBanner: false,
+        home: HomePage(),
+      );
+      }
     );
   }
 }
@@ -35,18 +54,28 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   String? rowName;
   String? colName;
   late var a = fs.Fileselector();
-  late int colCount;
+  late int colCount = 0;
   String named = ""; // Хранит имя
   String? positiond; // Хранит тип графика (может быть null)
   bool _isDataSourceExpanded = false; // состояние для управления видимостью выпадающего меню
   bool _isFileSourceExpanded = false; // состояние для управления видимостью второго меню (Файл формата или Ручной ввод)
+  bool widgetFinished = false;
   late AnimationController _controller;
   int secondWidgetCount = 0;
   int widgetCount = 0; // Счетчик виджетов
-
+  int alignInt = 0;
+  double dialogWidth = 300;
+  double dialogHeight = 480;
+  late List<PieData> pieData = [];
+  bool showFields = false;
+  bool showNewWidgets = false;
+  List<TextEditingController> _textControllers = [];
+  List<dynamic> gistData = [];
+  List<Offset> LRData = [];
+  List<List<String>> chartsData = [];
+  List<dynamic> filesData = [];
+  bool darkTheme = false;
 // Позиции виджетов
-  double _topPosition = 50; // Начальная позиция по вертикали
-  double _leftPosition = 50; // Начальная позиция по горизонтали
   bool _isPlusWidgetMoved = false; // Флаг для отслеживания смещения
   List<Widget> greenWidgets = []; // Список зеленых виджетов
 
@@ -54,15 +83,36 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     setState(() {
       if (_isPlusWidgetMoved) {
         // Если виджет уже сместился, смещаем его наискосок влево вниз
-        _topPosition += 250; // Смещение вниз
-        _leftPosition -= 300; // Смещение влево
         _isPlusWidgetMoved = false; // Сбрасываем флаг
       } else {
         // Если виджет не смещен, смещаем его вправо
-        _leftPosition += 300; // Смещение вправо
         _isPlusWidgetMoved = true; // Устанавливаем флаг
       }
     });
+  }
+
+  void ErrorWindow() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Container(
+            width: 218,
+            height: 37,
+            child: Center(
+              child: Text(
+                'Все поля должны быть заполнены',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.red,
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   void _addGreenWidget() {
@@ -70,7 +120,28 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       greenWidgets.add(_buildGreenWidget(greenWidgets.length)); // Добавляем новый зеленый виджет
     });
   }
-  
+  Alignment setAlignment(int index)
+    {
+      int num = index;
+      switch (num)
+      {
+        case 0:
+          return Alignment.topLeft;
+        case 1:
+          return Alignment.topRight;
+        case 2:
+          return Alignment.centerLeft;
+        case 3:
+          return Alignment.centerRight;
+        case 4:
+          return Alignment.bottomLeft;
+        case 5:
+          return Alignment.bottomRight;
+        default:
+          return Alignment.topCenter;
+      }
+    }
+
   @override
   void initState() {
     super.initState();
@@ -86,7 +157,52 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     _controller.dispose(); // Освобождаем контроллер
     super.dispose();
   }
-
+  void fillPieData()
+  {
+    for(int i = 0; i < _textControllers.length - 1; i++)
+      {
+        if(i%2 == 0)
+          pieData.add(PieData(_textControllers[i].text, int.parse(_textControllers[i+1].text)));
+        else
+          continue;
+      }
+  }
+  void fillPieDataFile(index){
+    for(int i =0; i < filesData[index].length; i++)
+    {
+      pieData.add(PieData(filesData[index][i][0], int.parse(filesData[index][i][1])));
+    }
+  }
+  void fillGistDataFile(index)
+  {
+    for(int i =0; i < filesData[index].length; i++)
+    {
+      gistData.add(filesData[index][i]);
+    }
+  }
+  void fillGistData(){
+    for(int i = 0; i < _textControllers.length; i++)
+    {
+      gistData.add(int.parse(_textControllers[i].text));
+    }
+  }
+  void fillLRDataFile(index)
+  {
+    for(int i = 0; i < filesData[index].length; i++)
+    {
+      LRData.add(Offset(double.parse(filesData[index][i][0]), double.parse(filesData[index][i][1])));
+    }
+  }
+  void fillLRData()
+  {
+    for(int i = 0; i < _textControllers.length; i++)
+    {
+      if(i%2 == 0)
+        LRData.add(Offset(double.parse(_textControllers[i].text), double.parse(_textControllers[i+1].text)));
+      else
+        continue;
+    }
+  }
   void _saveData(String name, String? position, String? source) {
     // Создаем объект с данными
     Map<String, dynamic> data = {
@@ -105,73 +221,86 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     print(jsonData); // Для проверки выведем в консоль
   }
 Widget _buildGreenWidget(int index) {
-    return Positioned(
-      top:_topPosition, // Позиция такая же, как у первого виджета
-      left: _leftPosition, // Смещение, измените по необходимости
+    filesData.add(a.data);
+    return Align(
+      alignment: setAlignment(index),
       child: GestureDetector(
         onTap: () {
-                  if(formHist == "Гистограмма")
+                  if(chartsData[index][0] == "Гистограмма")
                   {
-                    if(wayEnter == "Файл формата")
+                    if(chartsData[index][1] == "Файл формата")
                     {
+                      gistData = [];
+                      fillGistDataFile(index);
                       Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => GistogramPage(userData: a.data, userColCount: colCount,),
+                        builder: (context) => HistogramPage(userData: gistData, userColCount: colCount,),
                         )
                       );
                     }
                     else{
+                      gistData = [];
+                      fillGistData();
                       Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => GistogramPage(userData: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], userColCount: colCount),
+                        builder: (context) => HistogramPage(userData: gistData, userColCount: colCount),
                         )
                       );
                     }
                   }
-                  else if(formHist == "Круговая диаграмма")
+                  else if(chartsData[index][0] == "Круговая диаграмма")
                   {
-                    if(wayEnter == "Файл формата")
+                    if(chartsData[index][1] == "Файл формата")
                     {
+                      pieData = [];
+                      fillPieDataFile(index);
                       Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => PiePage(),
+                        builder: (context) => PiePage(userData: pieData),
                         )
                       );
                     }
                     else{
+                      pieData = [];
+                      fillPieData();
                       Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => PiePage(),
+                        builder: (context) => PiePage(userData: pieData),
                         )
                       );
                     }
                   }
-                  else if(formHist == "График корелляции")
+                  else if(chartsData[index][0] == "График корреляции")
                   {
-                    if(wayEnter == "Файл формата")
+                    if(chartsData[index][1] == "Файл формата")
                     {
+                      LRData = [];
+                      fillLRDataFile(index);
                       Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => LRPage(),
+                        builder: (context) => LRPage(userPoints: LRData),
                         )
                       );
                     }
                     else{
+                      LRData = [];
+                      fillLRData();
                       Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => LRPage(),
+                        builder: (context) => LRPage(userPoints: LRData),
                         )
                       );
                     }
                   }
 },
         child: Container(
+          margin: EdgeInsets.all(50),
           width: 170,
           height: 170,
           decoration: BoxDecoration(
@@ -201,14 +330,16 @@ Widget _buildGreenWidget(int index) {
   }
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(60),
         child: AppBar(
-          leading: Icon(Icons.arrow_back, color: Colors.black),
           actions: [
-            Icon(Icons.help_outline, color: Colors.black),
+            IconButton(
+            onPressed: (){}, 
+            icon: Image.asset('assets/images/question.png',width: 32,height: 32)),
           ],
           title: GradientText(
             'VizFlow',
@@ -217,9 +348,10 @@ Widget _buildGreenWidget(int index) {
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
             ),
-            style: GoogleFonts.roboto(
+            style: TextStyle(
               fontSize: 48,
               fontWeight: FontWeight.w400,
+              fontFamily: 'Roboto', // Дефолтный шрифт
             ),
           ),
           centerTitle: true,
@@ -233,16 +365,18 @@ Widget _buildGreenWidget(int index) {
           Expanded(
             child: Stack(
               children: [
+                Visibility(
+                        visible: widgetFinished ? false : true,
                 // Анимированный виджет с плюсом
-                AnimatedPositioned(
-                  top: _topPosition,
-                  left: _leftPosition,
+                child: AnimatedAlign(
+                  alignment: setAlignment(alignInt),
                   duration: Duration(milliseconds: 300), // Длительность анимации
                   child: GestureDetector(
                     onTap: () {
                       _showParameterDialog(context);
                     },
                     child: Container(
+                      margin: EdgeInsets.all(50),
                       width: 170,
                       height: 170,
                       child: Card(
@@ -256,6 +390,7 @@ Widget _buildGreenWidget(int index) {
                       ),
                     ),
                   ),
+                ),
                 ),
                 // Зеленые виджеты
                 ...greenWidgets,
@@ -273,29 +408,94 @@ Widget _buildGreenWidget(int index) {
     mainAxisAlignment: MainAxisAlignment.spaceAround,
     children: [
       TextButton(
-        onPressed: () {},
-        child: Image.asset(
-          'assets/images/archive.png',
-          width: 32, // Установите нужный размер
-          height: 28,
-        ),
-      ),
-      TextButton(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => GuidePage(),
+            )
+          );
+        },
         child: Image.asset(
           'assets/images/book.png',
           width: 25,
           height: 28,
         ),
       ),
-      TextButton(
-        onPressed: () {},
-        child: Image.asset(
-          'assets/images/settings.png',
-          width: 28,
-          height: 28,
-        ),
-      ),
+ TextButton(
+  onPressed: () {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Color(0xFFEBE7E7), // Цвет фона диалога
+          child: Container(
+            width: 307,
+            height: 185,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Center(
+                  child: Text("Настройки", style: TextStyle(fontSize: 20)),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                  child: Divider(thickness: 1),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 15.0, left: 10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      SizedBox(width: 35),
+                      Text("Тёмная тема", style: TextStyle(fontSize: 20)),
+                      SizedBox(width: 35),
+                      Switch(
+                        value: themeProvider.isDarkMode,
+                        onChanged: (value) {
+                          themeProvider.toggleTheme();
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 30, right: 100),
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: SizedBox(
+                      width: 115,
+                      height: 27,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xFFF2F2F2), // Цвет фона кнопки
+                          shadowColor: Colors.black.withOpacity(0.2), // Цвет тени
+                          elevation: 5, // Уровень тени
+                        ),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: Text(
+                          'Ок',
+                          style: TextStyle(color: Colors.black),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  },
+  child: Image.asset(
+    'assets/images/settings.png',
+    width: 28,
+    height: 28,
+  ),
+),
     ],
   ),
 ),
@@ -305,12 +505,20 @@ Widget _buildGreenWidget(int index) {
   void _showParameterDialog(BuildContext context) {
     TextEditingController textController = TextEditingController();
     TextEditingController firstController = TextEditingController(); // Контроллер для первого TextField
-  TextEditingController secondController = TextEditingController(); // Контроллер для второго TextField
-
-    double dialogWidth = 300;
-    double dialogHeight = 480;
+    TextEditingController secondController = TextEditingController(); // Контроллер для второго TextField
+    bool HandCorel = false;
+    bool HandHist = false;
+    bool HandCircle = false;
     bool _isWidgetsVisible = true;
     bool _isLastWidget = false;
+    formHist = null;
+    wayEnter = null;
+    String inputValue = '';
+    _isDataSourceExpanded = false; // состояние для управления видимостью выпадающего меню
+    _isFileSourceExpanded = false; // состояние для управления видимостью второго меню (Файл формата или Ручной ввод)
+    widgetFinished = false;
+    dialogWidth = 300;
+    dialogHeight = 480;
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -352,22 +560,50 @@ Widget _buildGreenWidget(int index) {
                             backgroundColor: Color(0xFF8FFF9A),
                           ),
                           onPressed: () {
-                            _saveData(textController.text, formHist, wayEnter);
-                            setState(() {
-                              dialogHeight = 335;
-                              dialogWidth = 307;
-                              _isWidgetsVisible = false;
-                              if (formHist == 'Круговая диаграмма' && wayEnter == 'Файл формата') {
-                                _isLastWidget = true;
-                              }
-                              if (formHist == 'Круговая диаграмма' && wayEnter == 'Ручной ввод') { 
-                                dialogHeight = 122;
+                            if (textController.text != "" && formHist != null && wayEnter != null) {
+                              _saveData(textController.text, formHist, wayEnter);
+                              setState(() {
+                                dialogHeight = 335;
                                 dialogWidth = 307;
+                                _isWidgetsVisible = false;
+                                if (formHist == 'Круговая диаграмма') {
+                                if (wayEnter == 'Файл формата') {
+                                  _isLastWidget = true;
+                                }
+                                else {
+                                  dialogHeight = 122;
+                                  dialogWidth = 307;
+                                }
+                                }
+                                if (formHist == 'Гистограмма') {
+                                  dialogHeight = 240;
+                                  dialogWidth = 307;
+                                  if(wayEnter == 'Ручной ввод') { 
+                                  HandHist = true;
+                                } else {
+                                  dialogHeight = 305;
+                                  dialogWidth = 307;
+                                  _isLastWidget = true;
+                                }
+                                }
+                                if (formHist == 'График корреляции') {
+                                  dialogHeight = 335;
+                                  dialogWidth = 307;
+                                  if (wayEnter == 'Ручной ввод') { 
+                                  HandCorel = true;
+                                }
+                                else {
+                                  _isLastWidget = true;
+                                }
+                                }
+                              });
+                            }
+                            else {
+                                ErrorWindow();
                               }
-                            });
-                          },
+                            },
                           child: Text(
-                            'Далее',
+                            'Далее!',
                             style: TextStyle(color: Colors.black),
                           ),
                         ),
@@ -391,51 +627,57 @@ Widget _buildGreenWidget(int index) {
                           controller: textController,
                           textAlign: TextAlign.center,
                           decoration: InputDecoration(
-                            labelText: 'Введите название',
+                            hintText: 'Введите название',
+                            hintStyle: TextStyle(color: Colors.black), // Цвет текста подсказки
                             border: InputBorder.none,
+                            contentPadding: EdgeInsets.symmetric(vertical: 13), // Отступы по вертикали
                           ),
                         ),
                       ),
                     ),
                     Positioned(
-                      top: 85,
-                      left: 25,
-                      child: Container(
-                        width: 250,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: Color(0xFFDDFFE4),
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: Color(0x65656587), width: 1),
-                        ),
-                        child: GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              _isDataSourceExpanded = !_isDataSourceExpanded;
-                            });
-                          },
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                formHist ?? 'Тип графика',
-                                style: GoogleFonts.roboto(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
+                        top: 85,
+                        left: 25,
+                        child: Container(
+                          width: 250,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: Color(0xFFDDFFE4),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: Color(0x65656587), width: 1),
+                          ),
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _isDataSourceExpanded = !_isDataSourceExpanded;
+                              });
+                            },
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center, // Центрируем по горизонтали
+                              crossAxisAlignment: CrossAxisAlignment.center, // Центрируем по вертикали
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    formHist ?? 'Тип графика',
+                                    textAlign: TextAlign.center, // Центрируем текст
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w400,
+                                      fontFamily: 'Roboto', // Дефолтный шрифт
+                                    ),
+                                  ),
+                                ),
+                                Icon(
+                                  _isDataSourceExpanded
+                                      ? Icons.arrow_drop_up
+                                      : Icons.arrow_drop_down,
                                   color: Colors.black,
                                 ),
-                              ),
-                              Icon(
-                                _isDataSourceExpanded
-                                    ? Icons.arrow_drop_up
-                                    : Icons.arrow_drop_down,
-                                color: Colors.black,
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
                     Positioned(
                       top: 145,
                       left: 25,
@@ -459,7 +701,7 @@ Widget _buildGreenWidget(int index) {
                           children: [
                             _buildMenuItem('Гистограмма', setState),
                             _buildMenuItem('Круговая диаграмма', setState),
-                            _buildMenuItem('График корелляции', setState),
+                            _buildMenuItem('График корреляции', setState),
                           ],
                         ),
                       ),
@@ -484,14 +726,18 @@ Widget _buildGreenWidget(int index) {
                             });
                           },
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            mainAxisAlignment: MainAxisAlignment.center, // Центрируем по горизонтали
+                            crossAxisAlignment: CrossAxisAlignment.center, // Центрируем по вертикали
                             children: [
-                              Text(
-                                wayEnter ?? 'Источник данных',
-                                style: GoogleFonts.roboto(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.black,
+                              Expanded(
+                                child: Text(
+                                  wayEnter ?? 'Источник данных',
+                                  textAlign: TextAlign.center, // Центрируем текст
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w400,
+                                    fontFamily: 'Roboto', // Дефолтный шрифт
+                                  ),
                                 ),
                               ),
                               Icon(
@@ -535,13 +781,318 @@ Widget _buildGreenWidget(int index) {
                       ),
                     ),
                   ],
+
+                  if (HandHist && _isLastWidget) ...[
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                              Container(
+                                width: 250,
+                                height: 40,
+                                alignment: Alignment.center, // Выравниваем текст
+                                child: Text(
+                                  'Введите данные',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                              child: Divider(
+                                color: Colors.black,
+                                thickness: 0.5,
+                              ),
+                            ),
+                            SizedBox(
+                      height: (colCount) * 50 + 100, // Учитываем количество элементов
+                      child: Stack(
+                        children: List.generate(colCount, (index) {
+                          if (index >= _textControllers.length) {
+                            _textControllers.add(TextEditingController());
+                          }
+
+                          // Определяем текст для названия сектора или значения
+                          String labelText = 'Значение ${index + 1}';
+
+                          return Positioned(
+                            top: 25 + (index * 50), // Смещение вниз для каждого элемента
+                            right: 25, // Смещение вправо
+                            child: Container(
+                              width: 250, // Установите ширину контейнера, если это необходимо
+                              child: Row(
+                                children: [
+                                  // Контейнер с текстом "Сектор" или "Значение"
+                                  Container(
+                                    width: 100, // Ширина для текста
+                                    alignment: Alignment.centerLeft,
+                                    padding: EdgeInsets.only(left: 8.0), // Отступ слева для текста
+                                    child: Text(
+                                      labelText,
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                                  // Поле ввода
+                                  Expanded(
+                                    child: Container(
+                                      height: 40,
+                                      decoration: BoxDecoration(
+                                        color: Color(0xFFDDFFE4),
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(color: Color(0x65656587), width: 1),
+                                      ),
+                                      child: TextField(
+                                        textAlign: TextAlign.center,
+                                        controller: _textControllers[index], //контроллеры(Артему)//////////////////////////////////////////////////
+                                        decoration: InputDecoration(
+                                          labelText: '',
+                                          contentPadding: EdgeInsets.symmetric(vertical: 13),
+                                          border: InputBorder.none,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                              }),
+                            ),
+                          ),
+                                ],
+                              ),
+                            ),
+                    ),
+                  ],
+
+                  if (HandCorel && _isLastWidget) ...[
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                              Container(
+                                width: 250,
+                                height: 40,
+                                alignment: Alignment.center, // Выравниваем текст
+                                child: Text(
+                                  'Введите координаты точек',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                              child: Divider(
+                                color: Colors.black,
+                                thickness: 0.5,
+                              ),
+                            ),
+SizedBox(
+  height: (colCount * 2) * 50 + 100, // Учитываем количество элементов
+  child: Padding(
+    padding: const EdgeInsets.only(left: 40.0), // Отступ слева на 20 пикселей
+    child: Column(
+      children: List.generate(colCount, (index) {
+        // Инициализация контроллеров, если это необходимо
+        if (index * 2 >= _textControllers.length) {
+          _textControllers.add(TextEditingController());
+          _textControllers.add(TextEditingController());
+        }
+
+        // Определяем текст для названия
+        String labelX = 'X${index + 1}:';
+        String labelY = 'Y${index + 1}:';
+
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 10.0), // Отступ между строками
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start, // Выравнивание по левому краю
+            children: [
+              // Контейнер с текстом "X" и полем ввода
+              Container(
+                width: 30, // Ширина для текста
+                alignment: Alignment.centerLeft,
+                padding: EdgeInsets.only(left: 4.0), // Уменьшаем отступ слева для текста
+                child: Text(
+                  labelX,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+              // Поле ввода для X
+              Container(
+                width: 70, // Ширина поля ввода
+                height: 40, // Высота поля ввода
+                decoration: BoxDecoration(
+                  color: Color(0xFFDDFFE4),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Color(0x65656587), width: 1),
+                ),
+                child: TextField(
+                  textAlign: TextAlign.center,
+                  controller: _textControllers[index * 2], // Контроллер для X
+                  decoration: InputDecoration(
+                    labelText: '',
+                    contentPadding: EdgeInsets.symmetric(vertical: 13),
+                    border: InputBorder.none,
+                  ),
+                ),
+              ),
+              SizedBox(width: 10), // Горизонтальный отступ между X и Y
+              // Контейнер с текстом "Y" и полем ввода
+              Container(
+                width: 30, // Ширина для текста
+                alignment: Alignment.centerLeft,
+                padding: EdgeInsets.only(left: 4.0), // Уменьшаем отступ слева для текста
+                child: Text(
+                  labelY,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+              // Поле ввода для Y
+              Container(
+                width: 70, // Ширина поля ввода
+                height: 40, // Высота поля ввода
+                decoration: BoxDecoration(
+                  color: Color(0xFFDDFFE4),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Color(0x65656587), width: 1),
+                ),
+                child: TextField(
+                  textAlign: TextAlign.center,
+                  controller: _textControllers[index * 2 + 1], // Контроллер для Y
+                  decoration: InputDecoration(
+                    labelText: '',
+                    contentPadding: EdgeInsets.symmetric(vertical: 13), // Убираем вертикальные отступы
+                    border: InputBorder.none,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      }),
+    ),
+  ),
+),
+                                ],
+                              ),
+                            ),
+                    ),
+                  ],
+
+                  if (HandCircle) ...[
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                              Container(
+                                width: 250,
+                                height: 40,
+                                alignment: Alignment.center, // Выравниваем текст
+                                child: Text(
+                                  'Введите название сектора и значение',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                              child: Divider(
+                                color: Colors.black,
+                                thickness: 0.5,
+                              ),
+                            ),
+                            SizedBox(
+                      height: (colCount * 2) * 50 + 100, // Учитываем количество элементов
+                      child: Stack(
+                        children: List.generate(colCount * 2, (index) {
+                          if (index >= _textControllers.length) {
+                            _textControllers.add(TextEditingController());
+                          }
+
+                          // Определяем текст для названия сектора или значения
+                          String labelText = (index % 2 == 0) ? 'Сектор ${index ~/ 2 + 1}' : 'Значение ${index ~/ 2 + 1}';
+
+                          return Positioned(
+                            top: 25 + (index * 50), // Смещение вниз для каждого элемента
+                            right: 25, // Смещение вправо
+                            child: Container(
+                              width: 250, // Установите ширину контейнера, если это необходимо
+                              child: Row(
+                                children: [
+                                  // Контейнер с текстом "Сектор" или "Значение"
+                                  Container(
+                                    width: 100, // Ширина для текста
+                                    alignment: Alignment.centerLeft,
+                                    padding: EdgeInsets.only(left: 8.0), // Отступ слева для текста
+                                    child: Text(
+                                      labelText,
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                                  // Поле ввода
+                                  Expanded(
+                                    child: Container(
+                                      height: 40,
+                                      decoration: BoxDecoration(
+                                        color: Color(0xFFDDFFE4),
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(color: Color(0x65656587), width: 1),
+                                      ),
+                                      child: TextField(
+                                        textAlign: TextAlign.center,
+                                        controller: _textControllers[index], //контроллеры(Артему)//////////////////////////////////////////////////
+                                        decoration: InputDecoration(
+                                          labelText: '',
+                                          contentPadding: EdgeInsets.symmetric(vertical: 13),
+                                          border: InputBorder.none,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                              }),
+                            ),
+                          ),
+                                ],
+                              ),
+                            ),
+                    ),
+                  ],
+
+                  
                   ///////////////////////////////////////////////////////////////////////////
                   if (wayEnter == 'Файл формата' || formHist != 'Круговая диаграмма') ...[
-                  Positioned(
+                    Positioned(
                       top: 85,
                       left: 25,
                       child: Visibility(
-                        visible: !_isWidgetsVisible ? true : false,
+                        visible: (wayEnter == 'Файл формата' && formHist == 'График корреляции' && _isLastWidget) || (wayEnter == 'Файл формата' && formHist == 'Гистограмма' && _isLastWidget) || (!_isWidgetsVisible && !_isLastWidget) || (wayEnter == 'Файл формата' && formHist == 'Круговая диаграмма' && !_isWidgetsVisible) ? true : false,
                         child: Container(
                           width: 250,
                           height: 40,
@@ -559,6 +1110,7 @@ Widget _buildGreenWidget(int index) {
                             decoration: InputDecoration(
                               labelText: '',
                               border: InputBorder.none,
+                              contentPadding: EdgeInsets.symmetric(vertical: 13), // Отступы по вертикали
                             ),
                           ),
                         ),
@@ -568,7 +1120,7 @@ Widget _buildGreenWidget(int index) {
                       top: 185,
                       left: 25,
                       child: Visibility(
-                        visible: !_isWidgetsVisible ? true : false,
+                        visible: (wayEnter == 'Файл формата' && formHist == 'График корреляции' && _isLastWidget) || (!_isWidgetsVisible && formHist != 'Гистограмма' && !_isLastWidget) || (wayEnter == 'Файл формата' && formHist == 'Круговая диаграмма' && !_isWidgetsVisible)? true : false,
                         child: Container(
                           width: 250,
                           height: 40,
@@ -583,13 +1135,10 @@ Widget _buildGreenWidget(int index) {
                           child: TextField(
                             textAlign: TextAlign.center,
                             controller: secondController,
-                            keyboardType: TextInputType.number,
-                            onChanged: (value) {
-                              colCount = int.parse(value);
-                            },
                             decoration: InputDecoration(
                               labelText: '',
                               border: InputBorder.none,
+                              contentPadding: EdgeInsets.symmetric(vertical: 13), // Отступы по вертикали
                             ),
                           ),
                         ),
@@ -599,7 +1148,7 @@ Widget _buildGreenWidget(int index) {
                       top: 25, // Положение сверху
                       left: 40, // Положение слева
                       child: Visibility(
-                        visible: !_isWidgetsVisible ? true : false,
+                        visible: (wayEnter == 'Файл формата' && formHist == 'График корреляции' && _isLastWidget) || (wayEnter == 'Файл формата' && formHist == 'Гистограмма' && _isLastWidget) || (!_isWidgetsVisible && !_isLastWidget) || (wayEnter == 'Файл формата' && formHist == 'Круговая диаграмма' && !_isWidgetsVisible) ? true : false,
                         child: Container(
                           width: 218, // Ширина
                           height: 37, // Высота
@@ -609,7 +1158,7 @@ Widget _buildGreenWidget(int index) {
                                   ? 'Укажите название столбца с данными'
                                   : formHist == 'Гистограмма'
                                       ? 'Укажите название столбца с данными для оси OX'
-                                      : formHist == 'График корелляции'
+                                      : formHist == 'График корреляции'
                                           ? 'Укажите название столбца с данными для оси OX'
                                           : '',
                               textAlign: TextAlign.center, // Выравнивание текста
@@ -626,14 +1175,14 @@ Widget _buildGreenWidget(int index) {
                       top: 130, // Положение сверху
                       left: 40, // Положение слева
                       child: Visibility(
-                        visible: !_isWidgetsVisible ? true : false,
+                        visible: (wayEnter == 'Файл формата' && formHist == 'График корреляции' && _isLastWidget) || (!_isWidgetsVisible && formHist != 'Гистограмма' && !_isLastWidget) || (wayEnter == 'Файл формата' && formHist == 'Круговая диаграмма' && !_isWidgetsVisible) ? true : false,
                         child: Container(
                           width: 218, // Ширина
                           height: 37, // Высота
                           child: Center(
                             child: Text(
-                              formHist == 'Гистограмма' || formHist == 'График корелляции'
-                                  ? 'Укажите количество столбцов'
+                              formHist == 'График корреляции'
+                                  ? 'Укажите название столбца с данными для оси OY'
                                   : 'Укажите название столбца с категориями',
                               textAlign: TextAlign.center, // Выравнивание текста
                               style: TextStyle(
@@ -645,7 +1194,67 @@ Widget _buildGreenWidget(int index) {
                         ),
                       ),
                     ),
+                    if ((HandHist && !_isLastWidget) || (wayEnter == 'Файл формата' && formHist == 'Гистограмма' && _isLastWidget)) ... [
+                    Positioned(
+                          bottom: HandHist ? 65 : 125,
+                          right: 40,
+                          child: Row(
+                            children: [
+                              Text(
+                                'Укажите количество столбцов:',
+                                style: TextStyle(fontSize: 12, color: Colors.black),
+                              ),
+                              SizedBox(width: 10), // Отступ между текстом и полем
+                              Container(
+                                width: 50,
+                                height: 30,
+                                child: TextField(
+                                  keyboardType: TextInputType.number,
+                                  decoration: InputDecoration(
+                                    border: OutlineInputBorder(),
+                                    contentPadding: EdgeInsets.symmetric(horizontal: 13), // Отступы по вертикали
+                                  ),
+                                  onChanged: (value) { ////////////Артему
+                                    inputValue = value;
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                    ],
                   ],
+                    if (HandCorel && !_isLastWidget) ... [
+                      Positioned(
+                          bottom: 55,
+                          right: 40,
+                          child: Row(
+                            children: [
+                              Text(
+                                'Укажите количество точек:',
+                                style: TextStyle(fontSize: 12, color: Colors.black),
+                              ),
+                              SizedBox(width: 10), // Отступ между текстом и полем
+                              Container(
+                                width: 50,
+                                height: 30,
+                                child: TextField(
+                                  keyboardType: TextInputType.number,
+                                  decoration: InputDecoration(
+                                    border: OutlineInputBorder(),
+                                    contentPadding: EdgeInsets.symmetric(horizontal: 13), // Отступы по вертикали
+                                  ),
+                                  onChanged: (value) { ////////////Артему
+                                    inputValue = value;
+                                  },
+                                ),
+                              ),
+                            ],
+                            
+                          ),
+                        ),
+                    ],
+                  //ок
                     Positioned(
                       bottom: 15,
                       right: 25,
@@ -661,7 +1270,12 @@ Widget _buildGreenWidget(int index) {
                           onPressed: () {
                             _addGreenWidget(); // Добавление нового зеленого виджета
                             _updateWidgetPosition();
+                            HandCircle = false;
+                            if (alignInt == 5) {
+                            widgetFinished = true;
+                            }
                             Navigator.pop(context);
+                            alignInt++;
                           },
                           child: Text(
                             'Ок',
@@ -671,6 +1285,7 @@ Widget _buildGreenWidget(int index) {
                       ),
                     ),
                     ),
+                    //далее
                     Positioned(
                       bottom: 15,
                       right: 25,
@@ -686,9 +1301,31 @@ Widget _buildGreenWidget(int index) {
                           onPressed: () {
                             print(firstController.text);
                             print(secondController.text);
+                            print(colCount);
+
                             setState(() {
-                            _isWidgetsVisible = true;
+                            _isWidgetsVisible = false;
+                            
+                            if (wayEnter == 'Ручной ввод' && formHist == 'Круговая диаграмма') {
+                              dialogWidth = 300;
+                              dialogHeight = 480;
+                              HandCircle = true;
+                              _isLastWidget = true;
+                              }
+                            if (wayEnter == 'Ручной ввод' && formHist == 'Гистограмма') {
+                            dialogWidth = 300;
+                            dialogHeight = 320;
+                            HandHist = true;
                             _isLastWidget = true;
+                            }
+                            if (wayEnter == 'Ручной ввод' && formHist == 'График корреляции') {
+                            dialogWidth = 300;
+                            dialogHeight = 310;
+                            HandCorel = true;
+                            _isLastWidget = true;
+                            }
+                            if (inputValue.isNotEmpty)
+                              colCount = int.parse(inputValue);
                             });
                           },
                           child: Text(
@@ -712,7 +1349,7 @@ Widget _buildGreenWidget(int index) {
                                 backgroundColor: Color.fromARGB(255, 197, 197, 197),
                               ),
                               onPressed: () {
-                                a.openImageFile(context);
+                                a.openImageFile(context, formHist);
                                 _isLastWidget = true;
                               },
                               child: Text(
@@ -722,14 +1359,16 @@ Widget _buildGreenWidget(int index) {
                             ),
                           ),
                         ),
-                      ] else ...[
+                      ] else if (formHist == 'Круговая диаграмма') ...[
                         Positioned(
                           bottom: 55,
                           right: 40,
+                          child: Visibility(
+                        visible: _isLastWidget ? false : true,
                           child: Row(
                             children: [
                               Text(
-                                'Укажите количество столбцов:',
+                                'Укажите количество секторов:',
                                 style: TextStyle(fontSize: 12, color: Colors.black),
                               ),
                               SizedBox(width: 10), // Отступ между текстом и полем
@@ -740,14 +1379,16 @@ Widget _buildGreenWidget(int index) {
                                   keyboardType: TextInputType.number,
                                   decoration: InputDecoration(
                                     border: OutlineInputBorder(),
+                                    contentPadding: EdgeInsets.symmetric(horizontal: 13), // Отступы по вертикали
                                   ),
                                   onChanged: (value) {
-                                    colCount = int.parse(value);
+                                    inputValue = value;
                                   },
                                 ),
                               ),
                             ],
                           ),
+                        ),
                         ),
                       ],
                     ],
@@ -767,7 +1408,9 @@ Widget _buildGreenWidget(int index) {
     return GestureDetector(
       onTap: () {
         setState(() {
-          formHist = value; // присваиваем выбранное значение
+          formHist = value;
+          chartsData.add([value]);
+           // присваиваем выбранное значение
           _isDataSourceExpanded = false; // скрываем меню после выбора
         });
       },
@@ -788,7 +1431,8 @@ Widget _buildGreenWidget(int index) {
     return GestureDetector(
       onTap: () {
         setState(() {
-          wayEnter = value; // присваиваем выбранный источник данных
+          wayEnter = value;
+          chartsData[alignInt].add(value); // присваиваем выбранный источник данных
           _isFileSourceExpanded = false; // скрываем меню после выбора
         });
       },
