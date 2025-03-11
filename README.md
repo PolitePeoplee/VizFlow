@@ -48,7 +48,7 @@ VizFlow - Приложение для OC Аврора
 Контакты
 ---
  
-1. dasha779090@gmail.com
-2. simoni2000@mail.ru
-3. wot291@gmail.com
-4. skuratov.danya@gmail.com
+1. dasha779090@gmail.com (Ерохина Д.)
+2. simoni2000@mail.ru (Ивановский С.)
+3. wot291@gmail.com (Шмыров А.)
+4. skuratov.danya@gmail.com (Скуратов Д.)
