@@ -352,7 +352,7 @@ Widget _buildGreenWidget(int index) {
       body: Column(
         children: [
           Divider(),
-          Expanded(
+          Flexible(
             child: Stack(
               children: [
                 Visibility(
@@ -493,6 +493,7 @@ Widget _buildGreenWidget(int index) {
   }
 
   void _showParameterDialog(BuildContext context) {
+    _textControllers = [];
     TextEditingController textController = TextEditingController();
     TextEditingController firstController = TextEditingController(); // Контроллер для первого TextField
     TextEditingController secondController = TextEditingController(); // Контроллер для второго TextField
@@ -649,7 +650,7 @@ Widget _buildGreenWidget(int index) {
                               mainAxisAlignment: MainAxisAlignment.center, // Центрируем по горизонтали
                               crossAxisAlignment: CrossAxisAlignment.center, // Центрируем по вертикали
                               children: [
-                                Expanded(
+                                Flexible(
                                   child: Text(
                                     formHist ?? 'Тип графика',
                                     textAlign: TextAlign.center, // Центрируем текст
@@ -723,7 +724,7 @@ Widget _buildGreenWidget(int index) {
                             mainAxisAlignment: MainAxisAlignment.center, // Центрируем по горизонтали
                             crossAxisAlignment: CrossAxisAlignment.center, // Центрируем по вертикали
                             children: [
-                              Expanded(
+                              Flexible(
                                 child: Text(
                                   wayEnter ?? 'Источник данных',
                                   textAlign: TextAlign.center, // Центрируем текст
@@ -778,7 +779,7 @@ Widget _buildGreenWidget(int index) {
                   ],
 
                   if (HandHist && _isLastWidget) ...[
-                    Expanded(
+                    Flexible(
                       child: SingleChildScrollView(
                         child: Column(
                           children: [
@@ -834,7 +835,7 @@ Widget _buildGreenWidget(int index) {
                                     ),
                                   ),
                                   // Поле ввода
-                                  Expanded(
+                                  Flexible(
                                     child: Container(
                                       height: 40,
                                       decoration: BoxDecoration(
@@ -868,7 +869,7 @@ Widget _buildGreenWidget(int index) {
                   ],
 
                   if (HandCorel && _isLastWidget) ...[
-                    Expanded(
+                    Flexible(
                       child: SingleChildScrollView(
                         child: Column(
                           children: [
@@ -995,7 +996,7 @@ SizedBox(
                   ],
 
                   if (HandCircle) ...[
-                    Expanded(
+                    Flexible(
                       child: SingleChildScrollView(
                         child: Column(
                           children: [
@@ -1051,7 +1052,7 @@ SizedBox(
                                     ),
                                   ),
                                   // Поле ввода
-                                  Expanded(
+                                  Flexible(
                                     child: Container(
                                       height: 40,
                                       decoration: BoxDecoration(
