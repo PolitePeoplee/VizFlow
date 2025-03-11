@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:file_selector_aurora/file_selector_aurora.dart';
@@ -5,9 +7,10 @@ import 'package:vizflow/guidence.dart';
 import 'package:vizflow/pie.dart';
 import 'package:vizflow/histogram.dart';
 import 'package:vizflow/lrgraph.dart';
-import 'fileselector.dart' as fs;
 import 'package:provider/provider.dart';
 import 'darktheme.dart';
+import 'package:excel/excel.dart' as ex;
+import 'package:file_selector/file_selector.dart';
 final navigatorKey = GlobalKey<NavigatorState>();
 
 void main() {
@@ -43,7 +46,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   String? wayEnter; // переменная для выбранного источника данных
   String? rowName;
   String? colName;
-  late var a = fs.Fileselector();
+  List<dynamic> data = [];
   late int colCount = 0;
   String named = ""; // Хранит имя
   String? positiond; // Хранит тип графика (может быть null)
@@ -68,7 +71,68 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 // Позиции виджетов
   bool _isPlusWidgetMoved = false; // Флаг для отслеживания смещения
   List<Widget> greenWidgets = []; // Список зеленых виджетов
+  Future <List<dynamic>> readExcelFile(XFile file, String? formHist) async {
+  try {
+    // Чтение байтов из файла
+    final bytes = await file.readAsBytes();
 
+    // Декодирование Excel файла
+    var excel = ex.Excel.decodeBytes(bytes);
+    var result = [];
+    // Перебор всех листов в файле
+    for (var table in excel.tables.keys) {
+
+      // Перебор всех строк в листе
+      for (var row in excel.tables[table]!.rows) {
+        if(formHist == "Гистограмма")// Преобразование строки в список значений
+        {
+        var rowData = row.map((cell) => cell?.value.toString()).toString();
+        rowData = rowData.replaceAll('(', '').replaceAll(')', '');
+        var rowDataDouble = int.tryParse(rowData) ?? -1;
+        result.add(rowDataDouble);
+        }
+        else if(formHist == "Круговая диаграмма")
+        {
+          var rowData = row.map((cell) => cell?.value.toString()).toString();
+          rowData = rowData.replaceAll('(', '').replaceAll(')', '').replaceAll(' ', '');
+          List<String> parts = rowData.split(',');
+          result.add(parts);
+        }
+        else if(formHist == "График корреляции")
+        {
+          var rowData = row.map((cell) => cell?.value.toString()).toString();
+          rowData = rowData.replaceAll('(', '').replaceAll(')', '').replaceAll(' ', '');
+          List<String> parts = rowData.split(',');
+          result.add(parts);
+        }
+      }
+    }
+    return result;
+  } catch (e) {
+    print("Ошибка при чтении файла: $e");
+    List<dynamic> a = [];
+    return a;
+  }
+}
+  Future<void> openImageFile(String? formHist) async {
+  const XTypeGroup typeGroup = XTypeGroup(
+    extensions: <String>['xlsx'],
+  );
+
+  // Выбираем файл
+  var home = Platform.environment['HOME'];
+  XFile? file = await openFile(acceptedTypeGroups: <XTypeGroup>[typeGroup], initialDirectory: home);
+  if (file != null) {
+    // Откладываем выполнение до завершения текущего кадра
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // Читаем данные из файла
+      var newData = await readExcelFile(file, formHist);
+
+      // Обновляем состояние, если виджет всё ещё "жив
+          data = newData;  // Обновляем данныеx`
+    });
+  }
+}
   void _updateWidgetPosition() {
     setState(() {
       if (_isPlusWidgetMoved) {
@@ -211,7 +275,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     print(jsonData); // Для проверки выведем в консоль
   }
 Widget _buildGreenWidget(int index) {
-    filesData.add(a.data);
+    filesData.add(data);
     return Align(
       alignment: setAlignment(index),
       child: GestureDetector(
@@ -328,7 +392,7 @@ Widget _buildGreenWidget(int index) {
         child: AppBar(
           actions: [
             IconButton(
-            onPressed: (){}, 
+            onPressed: (){},
             icon: Image.asset('assets/images/question.png',width: 32,height: 32)),
           ],
           title: GradientText(
@@ -1352,7 +1416,12 @@ SizedBox(
                                 backgroundColor: Color.fromARGB(255, 197, 197, 197),
                               ),
                               onPressed: () {
-                                a.openImageFile(context, formHist);
+                                Future.delayed(Duration.zero, (){
+                                  if(mounted)
+                                  {
+                                    openImageFile(formHist);
+                                  }
+                                });
                                 _isLastWidget = true;
                               },
                               child: Text(
