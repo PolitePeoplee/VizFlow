@@ -85,6 +85,8 @@ void main() {
 }
 
 class VizFlowApp extends StatelessWidget {
+  const VizFlowApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Consumer<ThemeProvider>(
@@ -101,6 +103,8 @@ class VizFlowApp extends StatelessWidget {
 }
 
 class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -152,7 +156,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          content: Container(
+          content: SizedBox(
             width: 218,
             height: 37,
             child: Center(
@@ -217,10 +221,11 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   {
     for(int i = 0; i < _textControllers.length - 1; i++)
       {
-        if(i%2 == 0)
+        if(i%2 == 0) {
           pieData.add(PieData(_textControllers[i].text, int.parse(_textControllers[i+1].text)));
-        else
+        } else {
           continue;
+        }
       }
   }
   void fillPieDataFile(index){
@@ -253,10 +258,11 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   {
     for(int i = 0; i < _textControllers.length; i++)
     {
-      if(i%2 == 0)
+      if(i%2 == 0) {
         LRData.add(Offset(double.parse(_textControllers[i].text), double.parse(_textControllers[i+1].text)));
-      else
+      } else {
         continue;
+      }
     }
   }
   void _saveData(String name, String? position, String? source) {
@@ -485,7 +491,7 @@ Widget _buildGreenWidget(int index) {
               builder: (BuildContext context) {
                 return Dialog(
                   //backgroundColor: themeProvider.isDarkMode ? Colors.black : Colors.white, // Цвет фона диалога
-                  child: Container(
+                  child: SizedBox(
                     width: 307,
                     height: 185,
                     child: Column(
@@ -579,7 +585,7 @@ Widget _buildGreenWidget(int index) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-          final themeProvider = Provider.of<ThemeProvider>(context);
+          Provider.of<ThemeProvider>(context);
         return StatefulBuilder(
           builder: (context, setState) {
             return Dialog(
@@ -611,7 +617,7 @@ Widget _buildGreenWidget(int index) {
                     Positioned(
                       bottom: 15,
                       right: 25,
-                      child: Container(
+                      child: SizedBox(
                         width: 120,
                         height: 30,
                         child: ElevatedButton(
@@ -684,6 +690,7 @@ Widget _buildGreenWidget(int index) {
                         ),
                         child: TextField(
                           style: TextStyle(color: Colors.black),
+                          cursorColor: Colors.black,
                           controller: textController,
                           textAlign: TextAlign.center,
                           decoration: InputDecoration(
@@ -716,8 +723,7 @@ Widget _buildGreenWidget(int index) {
                               mainAxisAlignment: MainAxisAlignment.center, // Центрируем по горизонтали
                               crossAxisAlignment: CrossAxisAlignment.center, // Центрируем по вертикали
                               children: [
-                                Flexible(
-                                  child: Text(
+                                  Text(
                                     formHist ?? 'Тип графика',
                                     textAlign: TextAlign.center, // Центрируем текст
                                     style: TextStyle(
@@ -727,7 +733,6 @@ Widget _buildGreenWidget(int index) {
                                       fontFamily: 'Roboto', // Дефолтный шрифт
                                     ),
                                   ),
-                                ),
                                 Icon(
                                   _isDataSourceExpanded
                                       ? Icons.arrow_drop_up
@@ -790,8 +795,7 @@ Widget _buildGreenWidget(int index) {
                             mainAxisAlignment: MainAxisAlignment.center, // Центрируем по горизонтали
                             crossAxisAlignment: CrossAxisAlignment.center, // Центрируем по вертикали
                             children: [
-                              Flexible(
-                                child: Text(
+                                Text(
                                   wayEnter ?? 'Источник данных',
                                   textAlign: TextAlign.center, // Центрируем текст
                                   style: TextStyle(
@@ -801,7 +805,6 @@ Widget _buildGreenWidget(int index) {
                                     fontFamily: 'Roboto', // Дефолтный шрифт
                                   ),
                                 ),
-                              ),
                               Icon(
                                 _isFileSourceExpanded
                                     ? Icons.arrow_drop_up
@@ -845,311 +848,276 @@ Widget _buildGreenWidget(int index) {
                   ],
 
                   if (HandHist && _isLastWidget) ...[
-                    Flexible(
-                      child: SingleChildScrollView(
-                        child: Column(
+                    SingleChildScrollView(
+  child:
+                        Column(
                           children: [
-                              Container(
-                                width: 250,
-                                height: 40,
-                                alignment: Alignment.center, // Выравниваем текст
-                                child: Text(
-                                  'Введите данные',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                              ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 30.0),
-                              child: Divider(
-                                color: Colors.black,
-                                thickness: 0.5,
-                              ),
-                            ),
-                            SizedBox(
-                      height: (colCount) * 50 + 100, // Учитываем количество элементов
-                      child: Stack(
-                        children: List.generate(colCount, (index) {
-                          if (index >= _textControllers.length) {
-                            _textControllers.add(TextEditingController());
-                          }
+                              SizedBox(
+  height: (colCount) * 50 + 100, // Ограничиваем высоту
+  child: Stack(
+    children: List.generate(colCount, (index) {
+      // ✅ Добавляем контроллер, если его нет
+      while (_textControllers.length <= index) {
+        _textControllers.add(TextEditingController());
+      }
 
-                          // Определяем текст для названия сектора или значения
-                          String labelText = 'Значение ${index + 1}';
-
-                          return Positioned(
-                            top: 25 + (index * 50), // Смещение вниз для каждого элемента
-                            right: 25, // Смещение вправо
-                            child: Container(
-                              width: 250, // Установите ширину контейнера, если это необходимо
-                              child: Row(
-                                children: [
-                                  // Контейнер с текстом "Сектор" или "Значение"
-                                  Container(
-                                    width: 100, // Ширина для текста
-                                    alignment: Alignment.centerLeft,
-                                    padding: EdgeInsets.only(left: 8.0), // Отступ слева для текста
-                                    child: Text(
-                                      labelText,
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                  ),
-                                  // Поле ввода
-                                  Flexible(
-                                    child: Container(
-                                      height: 40,
-                                      decoration: BoxDecoration(
-                                        color: Color(0xFFDDFFE4),
-                                        borderRadius: BorderRadius.circular(10),
-                                        border: Border.all(color: Color(0x65656587), width: 1),
-                                      ),
-                                      child: TextField(
-                                        style: TextStyle(color: Colors.black),
-                                        textAlign: TextAlign.center,
-                                        controller: _textControllers[index], //контроллеры(Артему)//////////////////////////////////////////////////
-                                        decoration: InputDecoration(
-                                          labelText: '',
-                                          contentPadding: EdgeInsets.symmetric(vertical: 13),
-                                          border: InputBorder.none,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                              }),
-                            ),
-                          ),
-                                ],
-                              ),
-                            ),
+      return Positioned(
+  top: 25 + (index * 50), // Смещение вниз для каждого элемента
+  right: 25, // Смещение вправо
+  child: SizedBox(
+    width: 250, 
+    child: Row(
+      children: [
+        // Контейнер с текстом "Значение"
+        Container(
+          width: 100,
+          alignment: Alignment.centerLeft,
+          padding: EdgeInsets.only(left: 8.0),
+          child: Text(
+            'Значение ${index + 1}',
+            style: TextStyle(fontSize: 14, color: Colors.black),
+          ),
+        ),
+        // ✅ Оборачиваем в SizedBox
+        SizedBox(
+          width: 120, // Задаем ширину поля ввода
+          child: TextField(
+            style: TextStyle(color: Colors.black),
+            cursorColor: Colors.black,
+            textAlign: TextAlign.center,
+            controller: _textControllers[index], 
+              decoration: InputDecoration(
+                labelText: '',
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.black),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.black), // Черная рамка при фокусировке
+                ),
+                contentPadding: EdgeInsets.symmetric(horizontal: 15), // Отступы по вертикали
+              ),
+            ),
+          ),
+      ],
+    ),
+  ),
+);
+    }),
+  ),
+),
+                          ],
+),
                     ),
                   ],
 
                   if (HandCorel && _isLastWidget) ...[
-                    Flexible(
-                      child: SingleChildScrollView(
-                        child: Column(
-                          children: [
-                              Container(
-                                width: 250,
-                                height: 40,
-                                alignment: Alignment.center, // Выравниваем текст
-                                child: Text(
-                                  'Введите координаты точек',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                              ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 30.0),
-                              child: Divider(
-                                color: Colors.black,
-                                thickness: 0.5,
-                              ),
-                            ),
-SizedBox(
-  height: (colCount * 2) * 50 + 100, // Учитываем количество элементов
-  child: Padding(
-    padding: const EdgeInsets.only(left: 40.0), // Отступ слева на 20 пикселей
-    child: Column(
-      children: List.generate(colCount, (index) {
-        // Инициализация контроллеров, если это необходимо
-        if (index * 2 >= _textControllers.length) {
-          _textControllers.add(TextEditingController());
-          _textControllers.add(TextEditingController());
-        }
-
-        // Определяем текст для названия
-        String labelX = 'X${index + 1}:';
-        String labelY = 'Y${index + 1}:';
-
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 10.0), // Отступ между строками
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.start, // Выравнивание по левому краю
-            children: [
-              // Контейнер с текстом "X" и полем ввода
-              Container(
-                width: 30, // Ширина для текста
-                alignment: Alignment.centerLeft,
-                padding: EdgeInsets.only(left: 4.0), // Уменьшаем отступ слева для текста
-                child: Text(
-                  labelX,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-              // Поле ввода для X
-              Container(
-                width: 70, // Ширина поля ввода
-                height: 40, // Высота поля ввода
-                decoration: BoxDecoration(
-                  color: Color(0xFFDDFFE4),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Color(0x65656587), width: 1),
-                ),
-                child: TextField(
-                  style: TextStyle(color: Colors.black),
-                  textAlign: TextAlign.center,
-                  controller: _textControllers[index * 2], // Контроллер для X
-                  decoration: InputDecoration(
-                    labelText: '',
-                    contentPadding: EdgeInsets.symmetric(vertical: 13),
-                    border: InputBorder.none,
-                  ),
-                ),
-              ),
-              SizedBox(width: 10), // Горизонтальный отступ между X и Y
-              // Контейнер с текстом "Y" и полем ввода
-              Container(
-                width: 30, // Ширина для текста
-                alignment: Alignment.centerLeft,
-                padding: EdgeInsets.only(left: 4.0), // Уменьшаем отступ слева для текста
-                child: Text(
-                  labelY,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-              // Поле ввода для Y
-              Container(
-                width: 70, // Ширина поля ввода
-                height: 40, // Высота поля ввода
-                decoration: BoxDecoration(
-                  color: Color(0xFFDDFFE4),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Color(0x65656587), width: 1),
-                ),
-                child: TextField(
-                  style: TextStyle(color: Colors.black),
-                  textAlign: TextAlign.center,
-                  controller: _textControllers[index * 2 + 1], // Контроллер для Y
-                  decoration: InputDecoration(
-                    labelText: '',
-                    contentPadding: EdgeInsets.symmetric(vertical: 13), // Убираем вертикальные отступы
-                    border: InputBorder.none,
-                  ),
-                ),
-              ),
-            ],
+  Column(
+    children: [
+      Container(
+        width: 250,
+        height: 40,
+        alignment: Alignment.center,
+        child: SizedBox(
+          width: 250,
+          child: Text(
+            'Введите координаты точек',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.black,
+            ),
           ),
-        );
-      }),
-    ),
-  ),
-),
-                                ],
-                              ),
+        ),
+      ),
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 30.0),
+        child: Divider(
+          color: Colors.black,
+          thickness: 0.5,
+        ),
+      ),
+      // Wrap the entire content inside a SingleChildScrollView to avoid overflow
+      Expanded(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.only(left: 40.0),
+            child: Column(
+              children: List.generate(colCount, (index) {
+                if (index * 2 >= _textControllers.length) {
+                  _textControllers.add(TextEditingController());
+                  _textControllers.add(TextEditingController());
+                }
+
+                String labelX = 'X${index + 1}:';
+                String labelY = 'Y${index + 1}:';
+
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 10.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 30,
+                        alignment: Alignment.centerLeft,
+                        padding: EdgeInsets.only(left: 4.0),
+                        child: Text(
+                          labelX,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 70, // Fixed width for the input field
+                        height: 40,
+                        child: TextField(
+                          style: TextStyle(color: Colors.black),
+                          cursorColor: Colors.black,
+                          textAlign: TextAlign.center,
+                          controller: _textControllers[index * 2],
+                          decoration: InputDecoration(
+                            labelText: '',
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.black),
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                    ),
-                  ],
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.black), // Черная рамка при фокусировке
+                            ),
+                            contentPadding: EdgeInsets.symmetric(horizontal: 15), // Отступы по вертикали
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 10),
+                      Container(
+                        width: 30,
+                        alignment: Alignment.centerLeft,
+                        padding: EdgeInsets.only(left: 4.0),
+                        child: Text(
+                          labelY,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 70, // Fixed width for the input field
+                        height: 40,
+                        child: TextField(
+                          style: TextStyle(color: Colors.black),
+                          cursorColor: Colors.black,
+                          textAlign: TextAlign.center,
+                          controller: _textControllers[index * 2 + 1],
+                          decoration: InputDecoration(
+                            labelText: '',
+                            contentPadding: EdgeInsets.symmetric(vertical: 13),
+                            border: InputBorder.none,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }),
+            ),
+          ),
+        ),
+      ),
+    ],
+  ),
+],
 
                   if (HandCircle) ...[
-                    Flexible(
-                      child: SingleChildScrollView(
-                        child: Column(
-                          children: [
-                              Container(
-                                width: 250,
-                                height: 40,
-                                alignment: Alignment.center, // Выравниваем текст
-                                child: Text(
-                                  'Введите название сектора и значение',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                              ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 30.0),
-                              child: Divider(
-                                color: Colors.black,
-                                thickness: 0.5,
-                              ),
-                            ),
-                            SizedBox(
-                      height: (colCount * 2) * 50 + 100, // Учитываем количество элементов
-                      child: Stack(
-                        children: List.generate(colCount * 2, (index) {
-                          if (index >= _textControllers.length) {
-                            _textControllers.add(TextEditingController());
-                          }
+  Column(
+    children: [
+      Container(
+        width: 250,
+        height: 40,
+        alignment: Alignment.center, // Align the text
+        child: Text(
+          'Введите название сектора и значение',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.black,
+          ),
+        ),
+      ),
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 30.0),
+        child: Divider(
+          color: Colors.black,
+          thickness: 0.5,
+        ),
+      ),
+      // Wrap the Stack widget inside an Expanded widget for constrained height
+      Expanded(
+        child: Stack(
+          children: List.generate(colCount * 2, (index) {
+            // Ensure we have enough controllers in the list
+            if (_textControllers.length <= index) {
+              _textControllers.add(TextEditingController());
+            }
 
-                          // Определяем текст для названия сектора или значения
-                          String labelText = (index % 2 == 0) ? 'Сектор ${index ~/ 2 + 1}' : 'Значение ${index ~/ 2 + 1}';
+            // Define text for sector or value
+            String labelText = (index % 2 == 0) ? 'Сектор ${index ~/ 2 + 1}' : 'Значение ${index ~/ 2 + 1}';
 
-                          return Positioned(
-                            top: 25 + (index * 50), // Смещение вниз для каждого элемента
-                            right: 25, // Смещение вправо
-                            child: Container(
-                              width: 250, // Установите ширину контейнера, если это необходимо
-                              child: Row(
-                                children: [
-                                  // Контейнер с текстом "Сектор" или "Значение"
-                                  Container(
-                                    width: 100, // Ширина для текста
-                                    alignment: Alignment.centerLeft,
-                                    padding: EdgeInsets.only(left: 8.0), // Отступ слева для текста
-                                    child: Text(
-                                      labelText,
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                  ),
-                                  // Поле ввода
-                                  Flexible(
-                                    child: Container(
-                                      height: 40,
-                                      decoration: BoxDecoration(
-                                        color: Color(0xFFDDFFE4),
-                                        borderRadius: BorderRadius.circular(10),
-                                        border: Border.all(color: Color(0x65656587), width: 1),
-                                      ),
-                                      child: TextField(
-                                        style: TextStyle(color: Colors.black),
-                                        textAlign: TextAlign.center,
-                                        controller: _textControllers[index], //контроллеры(Артему)//////////////////////////////////////////////////
-                                        decoration: InputDecoration(
-                                          labelText: '',
-                                          contentPadding: EdgeInsets.symmetric(vertical: 13),
-                                          border: InputBorder.none,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                              }),
-                            ),
+            return Positioned(
+              top: 25 + (index * 50), // Offset down for each item
+              right: 25, // Offset right for each item
+              child: SizedBox(
+                width: 250, // Set the container width
+                child: Row(
+                  children: [
+                    // Container for sector or value text
+                    Container(
+                      width: 100, // Width for text
+                      alignment: Alignment.centerLeft,
+                      padding: EdgeInsets.only(left: 8.0), // Left padding for text
+                      child: Text(
+                        labelText,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                    // Input field
+                    SizedBox(
+                      width: 70, // Fixed width for the input field
+                      height: 40,
+                      child: TextField(
+                        style: TextStyle(color: Colors.black),
+                        cursorColor: Colors.black,
+                        textAlign: TextAlign.center,
+                        controller: _textControllers[index], // Ensure correct controller
+                        decoration: InputDecoration(
+                          labelText: '',
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.black),
+                            borderRadius: BorderRadius.circular(10),
                           ),
-                                ],
-                              ),
-                            ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.black), // Черная рамка при фокусировке
+                          ),
+                          contentPadding: EdgeInsets.symmetric(horizontal: 15), // Отступы по вертикали
+                        ),
+                      ),
                     ),
                   ],
+                ),
+              ),
+            );
+          }),
+        ),
+      ),
+    ],
+  ),
+],
 
                   
                   ///////////////////////////////////////////////////////////////////////////
@@ -1173,6 +1141,7 @@ SizedBox(
                           child: TextField(
                             style: TextStyle(color: Colors.black),
                             textAlign: TextAlign.center,
+                            cursorColor: Colors.black,
                             controller: firstController,
                             decoration: InputDecoration(
                               labelText: '',
@@ -1202,6 +1171,7 @@ SizedBox(
                           child: TextField(
                             style: TextStyle(color: Colors.black),
                             textAlign: TextAlign.center,
+                            cursorColor: Colors.black,
                             controller: secondController,
                             decoration: InputDecoration(
                               labelText: '',
@@ -1217,7 +1187,7 @@ SizedBox(
                       left: 40, // Положение слева
                       child: Visibility(
                         visible: (wayEnter == 'Файл формата' && formHist == 'График корреляции' && _isLastWidget) || (wayEnter == 'Файл формата' && formHist == 'Гистограмма' && _isLastWidget) || (!_isWidgetsVisible && !_isLastWidget) || (wayEnter == 'Файл формата' && formHist == 'Круговая диаграмма' && !_isWidgetsVisible) ? true : false,
-                        child: Container(
+                        child: SizedBox(
                           width: 218, // Ширина
                           height: 37, // Высота
                           child: Center(
@@ -1244,7 +1214,7 @@ SizedBox(
                       left: 40, // Положение слева
                       child: Visibility(
                         visible: (wayEnter == 'Файл формата' && formHist == 'График корреляции' && _isLastWidget) || (!_isWidgetsVisible && formHist != 'Гистограмма' && !_isLastWidget) || (wayEnter == 'Файл формата' && formHist == 'Круговая диаграмма' && !_isWidgetsVisible) ? true : false,
-                        child: Container(
+                        child: SizedBox(
                           width: 218, // Ширина
                           height: 37, // Высота
                           child: Center(
@@ -1273,16 +1243,22 @@ SizedBox(
                                 style: TextStyle(fontSize: 12, color: Colors.black),
                               ),
                               SizedBox(width: 10), // Отступ между текстом и полем
-                              Container(
+                              SizedBox(
                                 width: 50,
                                 height: 30,
                                 child: TextField(
                                   style: TextStyle(color: Colors.black),
                                   keyboardType: TextInputType.number,
+                                  cursorColor: Colors.black,
                                   decoration: InputDecoration(
-                                    border: OutlineInputBorder(),
-                                    contentPadding: EdgeInsets.symmetric(horizontal: 13), // Отступы по вертикали
-                                  ),
+                                    border: OutlineInputBorder(
+                                      borderSide: BorderSide(color: Colors.black),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(color: Colors.black), // Черная рамка при фокусировке
+                                    ),
+                                    contentPadding: EdgeInsets.symmetric(horizontal: 15), // Отступы по вертикали
+                                    ),
                                   onChanged: (value) { ////////////Артему
                                     inputValue = value;
                                   },
@@ -1304,16 +1280,22 @@ SizedBox(
                                 style: TextStyle(fontSize: 12, color: Colors.black),
                               ),
                               SizedBox(width: 10), // Отступ между текстом и полем
-                              Container(
+                              SizedBox(
                                 width: 50,
                                 height: 30,
                                 child: TextField(
                                   style: TextStyle(color: Colors.black),
                                   keyboardType: TextInputType.number,
+                                  cursorColor: Colors.black,
                                   decoration: InputDecoration(
-                                    border: OutlineInputBorder(),
-                                    contentPadding: EdgeInsets.symmetric(horizontal: 13), // Отступы по вертикали
-                                  ),
+                                    border: OutlineInputBorder(
+                                      borderSide: BorderSide(color: Colors.black),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(color: Colors.black), // Черная рамка при фокусировке
+                                    ),
+                                    contentPadding: EdgeInsets.symmetric(horizontal: 15), // Отступы по вертикали
+                                    ),
                                   onChanged: (value) { ////////////Артему
                                     inputValue = value;
                                   },
@@ -1329,7 +1311,7 @@ SizedBox(
                       right: 25,
                       child: Visibility(
                         visible: !_isWidgetsVisible && _isLastWidget ? true : false,
-                      child: Container(
+                      child: SizedBox(
                         width: 120,
                         height: 30,
                         child: ElevatedButton(
@@ -1361,7 +1343,7 @@ SizedBox(
                       right: 25,
                       child: Visibility(
                         visible: !_isWidgetsVisible && !_isLastWidget ? true : false,
-                      child: Container(
+                      child: SizedBox(
                         width: 120,
                         height: 30,
                         child: ElevatedButton(
@@ -1394,8 +1376,9 @@ SizedBox(
                             HandCorel = true;
                             _isLastWidget = true;
                             }
-                            if (inputValue.isNotEmpty)
+                            if (inputValue.isNotEmpty) {
                               colCount = int.parse(inputValue);
+                            }
                             });
                           },
                           child: Text(
@@ -1411,7 +1394,7 @@ SizedBox(
                         Positioned(
                           bottom: 55,
                           right: 60,
-                          child: Container(
+                          child: SizedBox(
                             width: 183,
                             height: 42,
                             child: ElevatedButton(
@@ -1447,16 +1430,22 @@ SizedBox(
                                 style: TextStyle(fontSize: 12, color: Colors.black),
                               ),
                               SizedBox(width: 10), // Отступ между текстом и полем
-                              Container(
+                              SizedBox(
                                 width: 50,
                                 height: 30,
                                 child: TextField(
                                   style: TextStyle(color: Colors.black),
                                   keyboardType: TextInputType.number,
+                                  cursorColor: Colors.black,
                                   decoration: InputDecoration(
-                                    border: OutlineInputBorder(),
-                                    contentPadding: EdgeInsets.symmetric(horizontal: 13), // Отступы по вертикали
-                                  ),
+                                    border: OutlineInputBorder(
+                                      borderSide: BorderSide(color: Colors.black),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(color: Colors.black), // Черная рамка при фокусировке
+                                    ),
+                                    contentPadding: EdgeInsets.symmetric(horizontal: 15), // Отступы по вертикали
+                                    ),
                                   onChanged: (value) {
                                     inputValue = value;
                                   },
@@ -1493,7 +1482,7 @@ SizedBox(
         padding: EdgeInsets.symmetric(vertical: 10, horizontal: 8), // отступы для линии
         decoration: BoxDecoration(
           border: Border(
-            bottom: BorderSide(color: Color(0xFF65656587), width: 1), // линия между элементами
+            bottom: BorderSide(color: Color(0xff65656587), width: 1), // линия между элементами
           ),
         ),
         child: Center(child: Text(value, style: TextStyle(color: Colors.black))),
@@ -1514,7 +1503,7 @@ SizedBox(
         padding: EdgeInsets.symmetric(vertical: 10, horizontal: 8),
         decoration: BoxDecoration(
           border: Border(
-            bottom: BorderSide(color: Color(0xFF65656587), width: 1),
+            bottom: BorderSide(color: Color(0xff65656587), width: 1),
           ),
         ),
         child: Center(child: Text(value, style: TextStyle(color: Colors.black))),
@@ -1528,7 +1517,7 @@ class GradientText extends StatelessWidget {
   final TextStyle style;
   final Gradient gradient;
 
-  GradientText(this.text, {required this.style, required this.gradient});
+  const GradientText(this.text, {super.key, required this.style, required this.gradient});
 
   @override
   Widget build(BuildContext context) {
