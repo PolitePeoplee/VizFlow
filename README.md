@@ -39,7 +39,7 @@ VizFlow - Приложение для OC Аврора
 | ![5](images/Frame5.jpg) | ![6](images/Frame6.jpg) |
 | ![7](images/FrameNastr.jpg) | ![8](images/FrameSprav.jpg) |
 | ![9](images/Frame1d.jpg) | ![10](images/Frame2_2d.png) |
-| ![11](images/Frame3_2d.png) | ![12](images/Frame4_2.png) |
+| ![11](images/Frame3_2d.png) | ![12](images/Frame4_2d.png) |
 | ![13](images/Frame5d.jpg) | ![14](images/Frame6d.jpg) |
 
 Команда разработчиков
