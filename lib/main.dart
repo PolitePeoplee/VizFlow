@@ -150,6 +150,49 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       }
     });
   }
+  void _showFAQDialog(BuildContext context){
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          child: Container(
+            width: 250, height: 200, padding: EdgeInsets.all(8),
+          child: Column(children: [Text('FAQ'),
+          Column(children: [
+            Row(children: [
+              Image.asset(
+            'assets/images/book.png',
+            width: 48,
+            height: 48,
+            ),
+          Text("Руководство")
+            ],
+          ),
+          Divider(),
+          Row(children: [
+            Image.asset(
+            'assets/images/settings.png',
+            width: 48,
+            height: 48,
+            ),
+          Text("Настройки")
+          ],)
+          ],
+          ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Закрыть'),
+              ),
+            ],
+            )
+          )
+        );
+      },
+    );
+
+  }
   Widget OkButton() {
     return SizedBox(
       width: 120,
@@ -425,8 +468,10 @@ Widget _buildGreenWidget(int index) {
         child: AppBar(
           actions: [
             IconButton(
-            onPressed: (){},
-            icon: Image.asset('assets/images/question.png',width: 32,height: 32)),
+            onPressed: (){
+              _showFAQDialog(context);
+            },
+            icon: themeProvider.isDarkMode ? Image.asset('assets/images/question_white.png',width: 32,height: 32) : Image.asset('assets/images/question_black.png',width: 32,height: 32)),
           ],
           title: GradientText(
             'VizFlow',
