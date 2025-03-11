@@ -362,7 +362,7 @@ Widget _buildGreenWidget(int index) {
                   }
 },
         child: Container(
-          margin: EdgeInsets.all(50),
+          margin: EdgeInsets.all(10),
           width: 170,
           height: 170,
           decoration: BoxDecoration(
@@ -392,6 +392,7 @@ Widget _buildGreenWidget(int index) {
   }
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
     final themeProvider = Provider.of<ThemeProvider>(context);
     return Scaffold(
       //backgroundColor: themeProvider.isDarkMode ? Colors.black : Colors.white,
@@ -422,23 +423,30 @@ Widget _buildGreenWidget(int index) {
         ),
       ),
       body: Column(
-        children: [
-          Divider(),
-          Flexible(
-            child: Stack(
-              children: [
-                Visibility(
-                        visible: widgetFinished ? false : true,
-                // Анимированный виджет с плюсом
-                child: AnimatedAlign(
-                  alignment: setAlignment(alignInt),
-                  duration: Duration(milliseconds: 300), // Длительность анимации
+      children: [
+        Divider(),
+        Flexible(
+          child: AnimatedAlign(
+            alignment: setAlignment(alignInt),
+            duration: Duration(milliseconds: 300),
+          child: GridView.builder(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: (screenWidth/170).floor(), // 2 виджета по горизонтали
+              childAspectRatio: 1, // Соотношение ширины и высоты
+            ),
+            itemCount: greenWidgets.length + (widgetFinished ? 0 : 1), // +1 для виджета с плюсом
+            itemBuilder: (context, index) {
+              if (index < greenWidgets.length) {
+                return greenWidgets[index]; // Зеленые виджеты
+              } else {
+                return Visibility(
+                  visible: !widgetFinished,
                   child: GestureDetector(
                     onTap: () {
                       _showParameterDialog(context);
                     },
                     child: Container(
-                      margin: EdgeInsets.all(50),
+                      margin: EdgeInsets.all(10), // Уменьшите отступ, если необходимо
                       width: 170,
                       height: 170,
                       child: Card(
@@ -452,15 +460,14 @@ Widget _buildGreenWidget(int index) {
                       ),
                     ),
                   ),
-                ),
-                ),
-                // Зеленые виджеты
-                ...greenWidgets,
-              ],
-            ),
+                );
+              }
+            },
           ),
-          Divider(),
-        ],
+        ),
+        ),
+        Divider(),
+      ],
       ),
       bottomNavigationBar: BottomAppBar(
     //color: themeProvider.isDarkMode ? Colors.black : Colors.white, // Цвет BottomAppBar
