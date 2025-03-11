@@ -10,68 +10,10 @@ import 'package:vizflow/lrgraph.dart';
 import 'package:provider/provider.dart';
 import 'darktheme.dart';
 import 'package:excel/excel.dart' as ex;
-import 'package:file_selector/file_selector.dart';
+import 'package:file_selector/file_selector.dart' as fs;
 final navigatorKey = GlobalKey<NavigatorState>();
-
-void main() {
-  FileSelectorAuroraKeyContainer.navigatorKey = navigatorKey;
-  runApp(ChangeNotifierProvider(
-      create: (_) => ThemeProvider(),
-      child: VizFlowApp()));
-}
-
-class VizFlowApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<ThemeProvider>(
-    builder: (context, themeProvider, child) {
-      return MaterialApp(
-        navigatorKey: navigatorKey,
-        theme: themeProvider.currentTheme,
-        debugShowCheckedModeBanner: false,
-        home: HomePage(),
-      );
-      }
-    );
-  }
-}
-
-class HomePage extends StatefulWidget {
-  @override
-  _HomePageState createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
-  String? formHist; // переменная для выбранного элемента
-  String? wayEnter; // переменная для выбранного источника данных
-  String? rowName;
-  String? colName;
-  List<dynamic> data = [];
-  late int colCount = 0;
-  String named = ""; // Хранит имя
-  String? positiond; // Хранит тип графика (может быть null)
-  bool _isDataSourceExpanded = false; // состояние для управления видимостью выпадающего меню
-  bool _isFileSourceExpanded = false; // состояние для управления видимостью второго меню (Файл формата или Ручной ввод)
-  bool widgetFinished = false;
-  late AnimationController _controller;
-  int secondWidgetCount = 0;
-  int widgetCount = 0; // Счетчик виджетов
-  int alignInt = 0;
-  double dialogWidth = 300;
-  double dialogHeight = 480;
-  late List<PieData> pieData = [];
-  bool showFields = false;
-  bool showNewWidgets = false;
-  List<TextEditingController> _textControllers = [];
-  List<dynamic> gistData = [];
-  List<Offset> LRData = [];
-  List<List<String?>> chartsData = [];
-  List<dynamic> filesData = [];
-  bool darkTheme = false;
-// Позиции виджетов
-  bool _isPlusWidgetMoved = false; // Флаг для отслеживания смещения
-  List<Widget> greenWidgets = []; // Список зеленых виджетов
-  Future <List<dynamic>> readExcelFile(XFile file, String? formHist) async {
+class OpenFile extends FileSelectorAurora{
+  Future <List<dynamic>> readExcelFile(fs.XFile file, String? formHist) async {
   try {
     // Чтение байтов из файла
     final bytes = await file.readAsBytes();
@@ -114,14 +56,15 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     return a;
   }
 }
+   List<dynamic> data = [];
   Future<void> openImageFile(String? formHist) async {
-  const XTypeGroup typeGroup = XTypeGroup(
+  const fs.XTypeGroup typeGroup = fs.XTypeGroup(
     extensions: <String>['xlsx'],
   );
 
   // Выбираем файл
   var home = Platform.environment['HOME'];
-  XFile? file = await openFile(acceptedTypeGroups: <XTypeGroup>[typeGroup], initialDirectory: home);
+  fs.XFile? file = await openFile(acceptedTypeGroups: <fs.XTypeGroup>[typeGroup], initialDirectory: home);
   if (file != null) {
     // Откладываем выполнение до завершения текущего кадра
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -133,6 +76,65 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     });
   }
 }
+}
+void main() {
+  FileSelectorAuroraKeyContainer.navigatorKey = navigatorKey;
+  runApp(ChangeNotifierProvider(
+      create: (_) => ThemeProvider(),
+      child: VizFlowApp()));
+}
+
+class VizFlowApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<ThemeProvider>(
+    builder: (context, themeProvider, child) {
+      return MaterialApp(
+        navigatorKey: navigatorKey,
+        theme: themeProvider.currentTheme,
+        debugShowCheckedModeBanner: false,
+        home: HomePage(),
+      );
+      }
+    );
+  }
+}
+
+class HomePage extends StatefulWidget {
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
+  String? formHist; // переменная для выбранного элемента
+  String? wayEnter; // переменная для выбранного источника данных
+  String? rowName;
+  String? colName;
+  late int colCount = 0;
+  String named = ""; // Хранит имя
+  String? positiond; // Хранит тип графика (может быть null)
+  bool _isDataSourceExpanded = false; // состояние для управления видимостью выпадающего меню
+  bool _isFileSourceExpanded = false; // состояние для управления видимостью второго меню (Файл формата или Ручной ввод)
+  bool widgetFinished = false;
+  late AnimationController _controller;
+  int secondWidgetCount = 0;
+  int widgetCount = 0; // Счетчик виджетов
+  int alignInt = 0;
+  double dialogWidth = 300;
+  double dialogHeight = 480;
+  late List<PieData> pieData = [];
+  bool showFields = false;
+  bool showNewWidgets = false;
+  List<TextEditingController> _textControllers = [];
+  List<dynamic> gistData = [];
+  List<Offset> LRData = [];
+  List<List<String?>> chartsData = [];
+  List<dynamic> filesData = [];
+  bool darkTheme = false;
+// Позиции виджетов
+  bool _isPlusWidgetMoved = false; // Флаг для отслеживания смещения
+  List<Widget> greenWidgets = []; // Список зеленых виджетов
+  var a = OpenFile();
   void _updateWidgetPosition() {
     setState(() {
       if (_isPlusWidgetMoved) {
@@ -275,7 +277,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     print(jsonData); // Для проверки выведем в консоль
   }
 Widget _buildGreenWidget(int index) {
-    filesData.add(data);
+    filesData.add(a.data);
     return Align(
       alignment: setAlignment(index),
       child: GestureDetector(
@@ -1419,7 +1421,7 @@ SizedBox(
                                 Future.delayed(Duration.zero, (){
                                   if(mounted)
                                   {
-                                    openImageFile(formHist);
+                                    a.openImageFile(formHist);
                                   }
                                 });
                                 _isLastWidget = true;
