@@ -56,7 +56,7 @@ class OpenFile extends FileSelectorAurora{
     return a;
   }
 }
-   List<dynamic> data = [];
+  List<dynamic> data = [];
   Future<void> openImageFile(String? formHist) async {
   const fs.XTypeGroup typeGroup = fs.XTypeGroup(
     extensions: <String>['xlsx'],
@@ -429,9 +429,9 @@ Widget _buildGreenWidget(int index) {
                   }
 },
         child: Container(
-          margin: EdgeInsets.all(10),
-          width: 170,
-          height: 170,
+          margin: EdgeInsets.all(11),
+          // width: 170,
+          // height: 170,
           decoration: BoxDecoration(
             color: Color.fromRGBO(42, 216, 94, 0.41), // Цвет фона
             borderRadius: BorderRadius.circular(10),
@@ -450,6 +450,7 @@ Widget _buildGreenWidget(int index) {
               Text(
                 'Тип: $positiond', // Подставьте переменную с типом
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
               ),
             ],
           ),
@@ -934,7 +935,7 @@ Widget _buildGreenWidget(int index) {
         child: SizedBox(
           width: 250,
           child: Text(
-            'Введите координаты точек',
+            'Введите значения',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 14,
@@ -989,6 +990,7 @@ Widget _buildGreenWidget(int index) {
                                 textAlign: TextAlign.center,
                                 controller: _textControllers[index],
                                 decoration: InputDecoration(
+                                  fillColor: Colors.white,
                                   labelText: '',
                                   border: OutlineInputBorder(
                                     borderSide: BorderSide(color: Colors.black),
@@ -1086,6 +1088,7 @@ Widget _buildGreenWidget(int index) {
                           textAlign: TextAlign.center,
                           controller: _textControllers[index * 2],
                           decoration: InputDecoration(
+                            fillColor: Colors.white,
                             labelText: '',
                             border: OutlineInputBorder(
                               borderSide: BorderSide(color: Colors.black),
@@ -1205,6 +1208,7 @@ Widget _buildGreenWidget(int index) {
                           textAlign: TextAlign.center,
                           controller: _textControllers[index],
                           decoration: InputDecoration(
+                            fillColor: Colors.white,
                             labelText: '',
                             border: OutlineInputBorder(
                               borderSide: BorderSide(color: Colors.black),
