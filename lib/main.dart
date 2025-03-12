@@ -1041,7 +1041,7 @@ Widget _buildGreenWidget(int index) {
         ),
       ),
       Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 30.0),
+        padding: const EdgeInsets.symmetric(horizontal: 10.0),
         child: Divider(
           color: Colors.black,
           thickness: 0.5,
@@ -1067,10 +1067,11 @@ Widget _buildGreenWidget(int index) {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
+                      SizedBox(width: 10),
                       Container(
                         width: 30,
                         alignment: Alignment.centerLeft,
-                        padding: EdgeInsets.only(left: 4.0),
+                        padding: EdgeInsets.only(left: 0.0),
                         child: Text(
                           labelX,
                           style: TextStyle(
@@ -1123,9 +1124,16 @@ Widget _buildGreenWidget(int index) {
                           textAlign: TextAlign.center,
                           controller: _textControllers[index * 2 + 1],
                           decoration: InputDecoration(
+                            fillColor: Colors.white,
                             labelText: '',
-                            contentPadding: EdgeInsets.symmetric(vertical: 13),
-                            border: InputBorder.none,
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.black),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.black), // Черная рамка при фокусировке
+                            ),
+                            contentPadding: EdgeInsets.symmetric(horizontal: 15), // Отступы по вертикали
                           ),
                         ),
                       ),
@@ -1416,7 +1424,7 @@ Widget _buildGreenWidget(int index) {
                                     focusedBorder: OutlineInputBorder(
                                       borderSide: BorderSide(color: Colors.black), // Черная рамка при фокусировке
                                     ),
-                                    contentPadding: EdgeInsets.symmetric(horizontal: 15), // Отступы по вертикали
+                                    contentPadding: EdgeInsets.symmetric(horizontal: 15),
                                     ),
                                   onChanged: (value) { ////////////Артему
                                     inputValue = value;
