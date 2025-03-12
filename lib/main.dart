@@ -3,10 +3,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:file_selector_aurora/file_selector_aurora.dart';
-import 'package:vizflow/guidence.dart';
-import 'package:vizflow/pie.dart';
-import 'package:vizflow/histogram.dart';
-import 'package:vizflow/lrgraph.dart';
+import 'package:VizFlow/guidence.dart';
+import 'package:VizFlow/pie.dart';
+import 'package:VizFlow/histogram.dart';
+import 'package:VizFlow/lrgraph.dart';
 import 'package:provider/provider.dart';
 import 'darktheme.dart';
 import 'package:excel/excel.dart' as ex;
@@ -132,8 +132,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   List<TextEditingController> _textControllers = [];
   List<dynamic> gistData = [];
   List<Offset> LRData = [];
-  List<List<String?>> chartsData = [];
+  List<List<dynamic>> chartsData = [];
   List<dynamic> filesData = [];
+  List<List<dynamic>> handData = [];
   bool darkTheme = false;
 // Позиции виджетов
   bool _isPlusWidgetMoved = false; // Флаг для отслеживания смещения
@@ -209,12 +210,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             }
           }
           if (!Empty) {
-            chartsData.add([formHist, wayEnter]);
-            _addGreenWidget(); // Добавление нового зеленого виджета
+              _addGreenWidget(); // Добавление нового зеленого виджета
             _updateWidgetPosition();
             if (alignInt == 5) {
             widgetFinished = true;
             }
+          
             Navigator.pop(context);
             alignInt++;
           }
@@ -255,6 +256,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   void _addGreenWidget() {
     setState(() {
+      chartsData.add([formHist, wayEnter, greenWidgets.length, colCount]);
       greenWidgets.add(_buildGreenWidget(greenWidgets.length)); // Добавляем новый зеленый виджет
     });
   }
@@ -295,12 +297,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     _controller.dispose(); // Освобождаем контроллер
     super.dispose();
   }
-  void fillPieData()
+  void fillPieData(index)
   {
-    for(int i = 0; i < _textControllers.length - 1; i++)
+    for(int i = 0; i < handData[index].length - 1; i++)
       {
         if(i%2 == 0) {
-          pieData.add(PieData(_textControllers[i].text, int.parse(_textControllers[i+1].text)));
+          pieData.add(PieData(handData[index][i], int.parse(handData[index][i+1])));
         } else {
           continue;
         }
@@ -319,12 +321,20 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       gistData.add(filesData[index][i]);
     }
   }
-  void fillGistData(){
-    for(int i = 0; i < _textControllers.length; i++)
+  void fillGistData(index){
+    for(int i = 0; i < handData[index].length; i++)
     {
-      gistData.add(int.parse(_textControllers[i].text));
+      gistData.add(int.parse(handData[index][i]));
     }
   }
+  void fillHandData(index)
+  {
+    handData.add([]);
+    for(int i = 0; i < _textControllers.length; i++)
+    {
+      handData[index].add(_textControllers[i].text);
+    }
+    }
   void fillLRDataFile(index)
   {
     for(int i = 0; i < filesData[index].length; i++)
@@ -332,12 +342,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       LRData.add(Offset(double.parse(filesData[index][i][0]), double.parse(filesData[index][i][1])));
     }
   }
-  void fillLRData()
+  void fillLRData(index)
   {
-    for(int i = 0; i < _textControllers.length; i++)
+    for(int i = 0; i < handData[index].length; i++)
     {
       if(i%2 == 0) {
-        LRData.add(Offset(double.parse(_textControllers[i].text), double.parse(_textControllers[i+1].text)));
+        LRData.add(Offset(double.parse(handData[index][i]), double.parse(handData[index][i+1])));
       } else {
         continue;
       }
@@ -361,7 +371,16 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     print(jsonData); // Для проверки выведем в консоль
   }
 Widget _buildGreenWidget(int index) {
-    filesData.add(a.data);
+    if(chartsData[index][1] == "Файл формата")
+      {
+        handData.add([]);
+        filesData.add(a.data);
+      }
+    else
+      {
+        filesData.add([]);
+        fillHandData(index);
+      }
     return Align(
       alignment: setAlignment(index),
       child: GestureDetector(
@@ -375,17 +394,17 @@ Widget _buildGreenWidget(int index) {
                       Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => HistogramPage(userData: gistData, userColCount: colCount,),
+                        builder: (context) => HistogramPage(userData: gistData, userColCount: chartsData[index][3],),
                         )
                       );
                     }
                     else{
                       gistData = [];
-                      fillGistData();
+                      fillGistData(index);
                       Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => HistogramPage(userData: gistData, userColCount: colCount),
+                        builder: (context) => HistogramPage(userData: gistData, userColCount: chartsData[index][3]),
                         )
                       );
                     }
@@ -405,7 +424,7 @@ Widget _buildGreenWidget(int index) {
                     }
                     else{
                       pieData = [];
-                      fillPieData();
+                      fillPieData(index);
                       Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -429,7 +448,7 @@ Widget _buildGreenWidget(int index) {
                     }
                     else{
                       LRData = [];
-                      fillLRData();
+                      fillLRData(index);
                       Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -1052,7 +1071,7 @@ Widget _buildGreenWidget(int index) {
         ),
       ),
       Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+        padding: const EdgeInsets.symmetric(horizontal: 30.0),
         child: Divider(
           color: Colors.black,
           thickness: 0.5,
@@ -1078,11 +1097,10 @@ Widget _buildGreenWidget(int index) {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      SizedBox(width: 10),
                       Container(
                         width: 30,
                         alignment: Alignment.centerLeft,
-                        padding: EdgeInsets.only(left: 0.0),
+                        padding: EdgeInsets.only(left: 4.0),
                         child: Text(
                           labelX,
                           style: TextStyle(
@@ -1136,16 +1154,9 @@ Widget _buildGreenWidget(int index) {
                           textAlign: TextAlign.center,
                           controller: _textControllers[index * 2 + 1],
                           decoration: InputDecoration(
-                            fillColor: Colors.white,
                             labelText: '',
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.black),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.black), // Черная рамка при фокусировке
-                            ),
-                            contentPadding: EdgeInsets.symmetric(horizontal: 15), // Отступы по вертикали
+                            contentPadding: EdgeInsets.symmetric(vertical: 13),
+                            border: InputBorder.none,
                           ),
                         ),
                       ),
@@ -1398,7 +1409,7 @@ Widget _buildGreenWidget(int index) {
                                     contentPadding: EdgeInsets.symmetric(horizontal: 15), // Отступы по вертикали
                                     ),
                                   onChanged: (value) { ////////////Артему
-                                    inputValue = value;
+                                    colCount = int.parse(value);
                                   },
                                 ),
                               ),
@@ -1437,7 +1448,7 @@ Widget _buildGreenWidget(int index) {
                                     focusedBorder: OutlineInputBorder(
                                       borderSide: BorderSide(color: Colors.black), // Черная рамка при фокусировке
                                     ),
-                                    contentPadding: EdgeInsets.symmetric(horizontal: 15),
+                                    contentPadding: EdgeInsets.symmetric(horizontal: 15), // Отступы по вертикали
                                     ),
                                   onChanged: (value) { ////////////Артему
                                     inputValue = value;
