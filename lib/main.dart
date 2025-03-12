@@ -202,14 +202,25 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           backgroundColor: Color(0xFF8FFF9A),
         ),
         onPressed: () {
-          chartsData.add([formHist, wayEnter]);
-          _addGreenWidget(); // Добавление нового зеленого виджета
-          _updateWidgetPosition();
-          if (alignInt == 5) {
-          widgetFinished = true;
+          bool Empty = true;
+          for (int i = 0;i < _textControllers.length; i++) {
+            if(_textControllers[i].text.isNotEmpty) {
+              Empty = !Empty;
+            }
           }
-          Navigator.pop(context);
-          alignInt++;
+          if (!Empty) {
+            chartsData.add([formHist, wayEnter]);
+            _addGreenWidget(); // Добавление нового зеленого виджета
+            _updateWidgetPosition();
+            if (alignInt == 5) {
+            widgetFinished = true;
+            }
+            Navigator.pop(context);
+            alignInt++;
+          }
+          else {
+            ErrorWindow();
+          }
         },
         child: Text(
           'Ок',
@@ -959,7 +970,6 @@ Widget _buildGreenWidget(int index) {
                 height: (colCount) * 50 + 100, // Ограничиваем высоту
                 child: Stack(
                   children: List.generate(colCount, (index) {
-                    // ✅ Добавляем контроллер, если его нет
                     while (_textControllers.length <= index) {
                       _textControllers.add(TextEditingController());
                     }
@@ -986,6 +996,7 @@ Widget _buildGreenWidget(int index) {
                               width: 120, // Задаем ширину поля ввода
                               child: TextField(
                                 style: TextStyle(color: Colors.black),
+                                keyboardType: TextInputType.number,
                                 cursorColor: Colors.black,
                                 textAlign: TextAlign.center,
                                 controller: _textControllers[index],
@@ -1086,6 +1097,7 @@ Widget _buildGreenWidget(int index) {
                         child: TextField(
                           style: TextStyle(color: Colors.black),
                           cursorColor: Colors.black,
+                          keyboardType: TextInputType.number,
                           textAlign: TextAlign.center,
                           controller: _textControllers[index * 2],
                           decoration: InputDecoration(
@@ -1211,6 +1223,7 @@ Widget _buildGreenWidget(int index) {
                         width: 70, // Фиксированная ширина для поля ввода
                         height: 40,
                         child: TextField(
+                          keyboardType: TextInputType.number,
                           style: TextStyle(color: Colors.black),
                           cursorColor: Colors.black,
                           textAlign: TextAlign.center,
@@ -1453,35 +1466,35 @@ Widget _buildGreenWidget(int index) {
                             backgroundColor: Color(0xFF8FFF9A),
                           ),
                           onPressed: () {
-                            print(firstController.text);
-                            print(secondController.text);
-                            print(colCount);
-
-                            setState(() {
-                            _isWidgetsVisible = false;
-                            
-                            if (wayEnter == 'Ручной ввод' && formHist == 'Круговая диаграмма') {
-                              dialogWidth = 300;
-                              dialogHeight = 480;
-                              HandCircle = true;
-                              _isLastWidget = true;
-                              }
-                            if (wayEnter == 'Ручной ввод' && formHist == 'Гистограмма') {
-                            dialogWidth = 300;
-                            dialogHeight = 320;
-                            HandHist = true;
-                            _isLastWidget = true;
-                            }
-                            if (wayEnter == 'Ручной ввод' && formHist == 'График корреляции') {
-                            dialogWidth = 300;
-                            dialogHeight = 310;
-                            HandCorel = true;
-                            _isLastWidget = true;
-                            }
                             if (inputValue.isNotEmpty) {
                               colCount = int.parse(inputValue);
+                              setState(() {
+                              _isWidgetsVisible = false;
+                              
+                              if (wayEnter == 'Ручной ввод' && formHist == 'Круговая диаграмма') {
+                                dialogWidth = 300;
+                                dialogHeight = 480;
+                                HandCircle = true;
+                                _isLastWidget = true;
+                                }
+                              if (wayEnter == 'Ручной ввод' && formHist == 'Гистограмма') {
+                              dialogWidth = 300;
+                              dialogHeight = 320;
+                              HandHist = true;
+                              _isLastWidget = true;
+                              }
+                              if (wayEnter == 'Ручной ввод' && formHist == 'График корреляции') {
+                              dialogWidth = 300;
+                              dialogHeight = 310;
+                              HandCorel = true;
+                              _isLastWidget = true;
+                              }
+                              });
                             }
-                            });
+                            else {
+                              ErrorWindow();
+                            }
+                            
                           },
                           child: Text(
                             'Далее',
