@@ -205,6 +205,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         onPressed: () {
           bool Empty = true;
           for (int i = 0;i < _textControllers.length; i++) {
+             Empty = true;
             if(_textControllers[i].text.isNotEmpty) {
               Empty = !Empty;
             }
@@ -219,7 +220,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             Navigator.pop(context);
             alignInt++;
           }
-          else {
+          else if (Empty){
             ErrorWindow();
           }
         },
@@ -1155,10 +1156,16 @@ Widget _buildGreenWidget(int index) {
                           controller: _textControllers[index * 2 + 1],
                           decoration: InputDecoration(
                             labelText: '',
-                            contentPadding: EdgeInsets.symmetric(vertical: 13),
-                            border: InputBorder.none,
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.black),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.black), // Черная рамка при фокусировке
+                            ),
+                            contentPadding: EdgeInsets.symmetric(horizontal: 15), // Отступы по вертикали
                           ),
-                        ),
+                          ),
                       ),
                     ],
                   ),
@@ -1451,7 +1458,7 @@ Widget _buildGreenWidget(int index) {
                                     contentPadding: EdgeInsets.symmetric(horizontal: 15), // Отступы по вертикали
                                     ),
                                   onChanged: (value) { ////////////Артему
-                                    inputValue = value;
+                                    colCount = int.parse(value);
                                   },
                                 ),
                               ),
@@ -1477,8 +1484,7 @@ Widget _buildGreenWidget(int index) {
                             backgroundColor: Color(0xFF8FFF9A),
                           ),
                           onPressed: () {
-                            if (inputValue.isNotEmpty) {
-                              colCount = int.parse(inputValue);
+                            if (colCount != 0) {
                               setState(() {
                               _isWidgetsVisible = false;
                               
