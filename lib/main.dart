@@ -194,7 +194,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
 
   }
-  Widget OkButton() {
+  Widget OkButton(bool hand) {
     return SizedBox(
       width: 120,
       height: 30,
@@ -203,24 +203,37 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           backgroundColor: Color(0xFF8FFF9A),
         ),
         onPressed: () {
+          print(hand);
           bool Empty = true;
+          if (hand) {
           for (int i = 0;i < _textControllers.length; i++) {
-             Empty = true;
             if(_textControllers[i].text.isNotEmpty) {
               Empty = !Empty;
             }
-          }
           if (!Empty) {
               _addGreenWidget(); // Добавление нового зеленого виджета
             _updateWidgetPosition();
             if (alignInt == 5) {
             widgetFinished = true;
-            }
-          
+            } 
             Navigator.pop(context);
             alignInt++;
           }
-          else if (Empty){
+          else {
+            ErrorWindow();
+          }
+          }
+          }
+          else if (colCount != 0) {
+            _addGreenWidget(); // Добавление нового зеленого виджета
+            _updateWidgetPosition();
+            if (alignInt == 5) {
+            widgetFinished = true;
+            } 
+            Navigator.pop(context);
+            alignInt++;
+          }
+          else {
             ErrorWindow();
           }
         },
@@ -680,6 +693,7 @@ Widget _buildGreenWidget(int index) {
     bool HandCorel = false;
     bool HandHist = false;
     bool HandCircle = false;
+    bool Hand = false;
     bool _isWidgetsVisible = true;
     bool _isLastWidget = false;
     formHist = null;
@@ -775,6 +789,9 @@ Widget _buildGreenWidget(int index) {
                             else {
                                 ErrorWindow();
                               }
+                            if (HandCircle || HandHist || HandCorel) {
+                                Hand = true;
+                            }
                             },
                           child: Text(
                             'Далее!',
@@ -1046,7 +1063,7 @@ Widget _buildGreenWidget(int index) {
         ),
       ),
       SizedBox(height: 20), // Отступ перед кнопкой
-      OkButton(), // Вставляем виджет OkButton
+      OkButton(Hand), // Вставляем виджет OkButton
       SizedBox(height: 20), // Отступ после кнопки
     ],
   ),
@@ -1156,16 +1173,10 @@ Widget _buildGreenWidget(int index) {
                           controller: _textControllers[index * 2 + 1],
                           decoration: InputDecoration(
                             labelText: '',
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.black),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.black), // Черная рамка при фокусировке
-                            ),
-                            contentPadding: EdgeInsets.symmetric(horizontal: 15), // Отступы по вертикали
+                            contentPadding: EdgeInsets.symmetric(vertical: 13),
+                            border: InputBorder.none,
                           ),
-                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -1176,7 +1187,7 @@ Widget _buildGreenWidget(int index) {
         ),
       ),
       SizedBox(height: 20), // Отступ перед кнопкой
-      OkButton(), // Вставляем виджет OkButton
+      OkButton(Hand), // Вставляем виджет OkButton
       SizedBox(height: 20), // Отступ после кнопки
     ],
   ),
@@ -1269,7 +1280,7 @@ Widget _buildGreenWidget(int index) {
         ),
       ),
       SizedBox(height: 20), // Отступ перед кнопкой
-      OkButton(), // Вставляем виджет OkButton
+      OkButton(Hand), // Вставляем виджет OkButton
       SizedBox(height: 15), // Отступ после кнопки
     ],
   ),
@@ -1426,7 +1437,7 @@ Widget _buildGreenWidget(int index) {
                         Positioned(
                           bottom: 15,
                           right: 25,
-                          child: OkButton(),
+                          child: OkButton(Hand),
                         ),
                     ],
                   ],
@@ -1458,7 +1469,7 @@ Widget _buildGreenWidget(int index) {
                                     contentPadding: EdgeInsets.symmetric(horizontal: 15), // Отступы по вертикали
                                     ),
                                   onChanged: (value) { ////////////Артему
-                                    colCount = int.parse(value);
+                                    inputValue = value;
                                   },
                                 ),
                               ),
@@ -1468,7 +1479,7 @@ Widget _buildGreenWidget(int index) {
                     ],
                   //ок
                     if (!_isWidgetsVisible && _isLastWidget && (HandCircle && HandHist && HandCorel)) ... [
-                      OkButton()
+                      OkButton(Hand)
                     ],
                     //далее
                     Positioned(
@@ -1484,7 +1495,8 @@ Widget _buildGreenWidget(int index) {
                             backgroundColor: Color(0xFF8FFF9A),
                           ),
                           onPressed: () {
-                            if (colCount != 0) {
+                            if (inputValue.isNotEmpty) {
+                              colCount = int.parse(inputValue);
                               setState(() {
                               _isWidgetsVisible = false;
                               
@@ -1552,7 +1564,7 @@ Widget _buildGreenWidget(int index) {
                         Positioned(
                           bottom: 15,
                           right: 25,
-                          child: OkButton(),
+                          child: OkButton(Hand),
                         ),
                       ] else if (formHist == 'Круговая диаграмма') ...[
                         Positioned(
