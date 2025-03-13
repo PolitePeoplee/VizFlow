@@ -194,7 +194,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
 
   }
-  Widget OkButton(bool hand) {
+  Widget showOkButton(bool hand) {
     return SizedBox(
       width: 120,
       height: 30,
@@ -204,27 +204,28 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         ),
         onPressed: () {
           print(hand);
-          bool Empty = true;
+          bool Empty = false;
           if (hand) {
-          for (int i = 0;i < _textControllers.length; i++) {
-            if(_textControllers[i].text.isNotEmpty) {
-              Empty = !Empty;
+            for (int i = 0; i < _textControllers.length; i++) {
+              if(!_textControllers[i].text.isNotEmpty) {
+                Empty = !Empty;
+                break;
+              }
             }
-          if (!Empty) {
-              _addGreenWidget(); // Добавление нового зеленого виджета
-            _updateWidgetPosition();
-            if (alignInt == 5) {
-            widgetFinished = true;
-            } 
-            Navigator.pop(context);
-            alignInt++;
+            if (!Empty) {
+                _addGreenWidget(); // Добавление нового зеленого виджета
+              _updateWidgetPosition();
+              if (alignInt == 5) {
+              widgetFinished = true;
+              } 
+              Navigator.pop(context);
+              alignInt++;
+            }
+            else {
+              showErrorWindow();
+            }
           }
-          else {
-            ErrorWindow();
-          }
-          }
-          }
-          else if (colCount != 0) {
+          else if (colCount != 0 && a.data.isNotEmpty) {
             _addGreenWidget(); // Добавление нового зеленого виджета
             _updateWidgetPosition();
             if (alignInt == 5) {
@@ -234,7 +235,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             alignInt++;
           }
           else {
-            ErrorWindow();
+            showErrorWindow();
           }
         },
         child: Text(
@@ -244,7 +245,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       ),
     );
   }
-  void ErrorWindow() {
+  void showErrorWindow() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -255,6 +256,30 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             child: Center(
               child: Text(
                 'Все поля должны быть заполнены',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.red,
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void showErrorCount() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: SizedBox(
+            width: 218,
+            height: 37,
+            child: Center(
+              child: Text(
+                'Количество не должно превышать 10',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,
@@ -330,7 +355,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   }
   void fillGistDataFile(index)
   {
-    for(int i =0; i < filesData[index].length; i++)
+    for(int i = 0; i < filesData[index].length; i++)
     {
       gistData.add(filesData[index][i]);
     }
@@ -367,7 +392,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       }
     }
   }
-  void _saveData(String name, String? position, String? source) {
+  void debugData(String name, String? position, String? source) {
     // Создаем объект с данными
     Map<String, dynamic> data = {
       'name': name,
@@ -580,7 +605,6 @@ Widget _buildGreenWidget(int index) {
           ),
         ),
         ),
-        Divider(),
       ],
       ),
       bottomNavigationBar: BottomAppBar(
@@ -690,14 +714,16 @@ Widget _buildGreenWidget(int index) {
     TextEditingController textController = TextEditingController();
     TextEditingController firstController = TextEditingController(); // Контроллер для первого TextField
     TextEditingController secondController = TextEditingController(); // Контроллер для второго TextField
-    bool HandCorel = false;
-    bool HandHist = false;
-    bool HandCircle = false;
-    bool Hand = false;
-    bool _isWidgetsVisible = true;
-    bool _isLastWidget = false;
+    bool handCorel = false;
+    bool handHist = false;
+    bool handCircle = false;
+    bool handCircle2 = false;
+    bool handEnter = false;
+    bool isWidgetsVisible = true;
+    bool isLastWidget = false;
     formHist = null;
     wayEnter = null;
+    colCount = 0;
     String inputValue = '';
     _isDataSourceExpanded = false; // состояние для управления видимостью выпадающего меню
     _isFileSourceExpanded = false; // состояние для управления видимостью второго меню (Файл формата или Ручной ввод)
@@ -736,7 +762,7 @@ Widget _buildGreenWidget(int index) {
                 ),
                 child: Stack(
                   children: [
-                    if (_isWidgetsVisible) ... [
+                    if (isWidgetsVisible) ... [
                     Positioned(
                       bottom: 15,
                       right: 25,
@@ -748,17 +774,18 @@ Widget _buildGreenWidget(int index) {
                             backgroundColor: Color(0xFF8FFF9A),
                           ),
                           onPressed: () {
+                            setState(() {
                             if (textController.text != "" && formHist != null && wayEnter != null) {
-                              _saveData(textController.text, formHist, wayEnter);
-                              setState(() {
+                              debugData(textController.text, formHist, wayEnter);
                                 dialogHeight = 335;
                                 dialogWidth = 307;
-                                _isWidgetsVisible = false;
+                                isWidgetsVisible = false;
                                 if (formHist == 'Круговая диаграмма') {
                                 if (wayEnter == 'Файл формата') {
-                                  _isLastWidget = true;
+                                  isLastWidget = true;
                                 }
                                 else {
+                                  handCircle2 = true;
                                   dialogHeight = 122;
                                   dialogWidth = 307;
                                 }
@@ -767,31 +794,31 @@ Widget _buildGreenWidget(int index) {
                                   dialogHeight = 240;
                                   dialogWidth = 307;
                                   if(wayEnter == 'Ручной ввод') { 
-                                  HandHist = true;
+                                  handHist = true;
                                 } else {
                                   dialogHeight = 305;
                                   dialogWidth = 307;
-                                  _isLastWidget = true;
+                                  isLastWidget = true;
                                 }
                                 }
                                 if (formHist == 'График корреляции') {
                                   dialogHeight = 335;
                                   dialogWidth = 307;
                                   if (wayEnter == 'Ручной ввод') { 
-                                  HandCorel = true;
+                                  handCorel = true;
                                 }
                                 else {
-                                  _isLastWidget = true;
+                                  isLastWidget = true;
                                 }
                                 }
-                              });
                             }
                             else {
-                                ErrorWindow();
-                              }
-                            if (HandCircle || HandHist || HandCorel) {
-                                Hand = true;
+                              showErrorWindow();
                             }
+                            if (handCircle2 || handHist || handCorel) {
+                                handEnter = true;
+                            }
+                            });
                             },
                           child: Text(
                             'Далее!',
@@ -973,7 +1000,7 @@ Widget _buildGreenWidget(int index) {
                     ),
                   ],
 
-                  if (HandHist && _isLastWidget) ...[
+                  if (handHist && isLastWidget) ...[
   Column(
     children: [
       Container(
@@ -1028,26 +1055,30 @@ Widget _buildGreenWidget(int index) {
                                 style: TextStyle(fontSize: 14, color: Colors.black),
                               ),
                             ),
-                            // ✅ Оборачиваем в SizedBox
                             SizedBox(
+                              height: 45,
                               width: 120, // Задаем ширину поля ввода
-                              child: TextField(
-                                style: TextStyle(color: Colors.black),
-                                keyboardType: TextInputType.number,
-                                cursorColor: Colors.black,
-                                textAlign: TextAlign.center,
-                                controller: _textControllers[index],
-                                decoration: InputDecoration(
-                                  fillColor: Colors.white,
-                                  labelText: '',
-                                  border: OutlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.black),
-                                    borderRadius: BorderRadius.circular(10),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Color(0xFFDDFFE4), // Цвет фона
+                                  borderRadius: BorderRadius.circular(10), // Скругление углов
+                                  border: Border.all(
+                                    color: Color(0x65656587), // Цвет рамки
+                                    width: 1, // Ширина рамки
                                   ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.black), // Черная рамка при фокусировке
+                                ),
+                                child: TextField(
+                                  style: TextStyle(color: Colors.black),
+                                  keyboardType: TextInputType.number,
+                                  cursorColor: Colors.black,
+                                  textAlign: TextAlign.center,
+                                  controller: _textControllers[index],
+                                  decoration: InputDecoration(
+                                    fillColor: Colors.white,
+                                    labelText: '',
+                                    border: InputBorder.none, // Убираем стандартную рамку
+                                    contentPadding: EdgeInsets.symmetric(vertical: 15, horizontal: 15), // Отступы по вертикали
                                   ),
-                                  contentPadding: EdgeInsets.symmetric(horizontal: 15), // Отступы по вертикали
                                 ),
                               ),
                             ),
@@ -1063,13 +1094,13 @@ Widget _buildGreenWidget(int index) {
         ),
       ),
       SizedBox(height: 20), // Отступ перед кнопкой
-      OkButton(Hand), // Вставляем виджет OkButton
+      showOkButton(handEnter), // Вставляем виджет OkButton
       SizedBox(height: 20), // Отступ после кнопки
     ],
   ),
 ],
 
-                  if (HandCorel && _isLastWidget) ...[
+                  if (handCorel && isLastWidget) ...[
   Column(
     children: [
       Container(
@@ -1096,104 +1127,124 @@ Widget _buildGreenWidget(int index) {
         ),
       ),
       Expanded(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.only(left: 40.0),
-            child: Column(
-              children: List.generate(colCount, (index) {
-                if (index * 2 >= _textControllers.length) {
-                  _textControllers.add(TextEditingController());
-                  _textControllers.add(TextEditingController());
-                }
+  child: SingleChildScrollView(
+    child: Padding(
+      padding: const EdgeInsets.only(left: 40.0),
+      child: Column(
+        children: List.generate(colCount, (index) {
+          // Проверяем, нужно ли добавить новые контроллеры
+          while (_textControllers.length <= index + colCount) {
+            _textControllers.add(TextEditingController());
+          }
 
-                String labelX = 'X${index + 1}:';
-                String labelY = 'Y${index + 1}:';
+          String labelX = 'X${index + 1}:';
+          String labelY = 'Y${index + 1}:';
 
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 10.0),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: 30,
-                        alignment: Alignment.centerLeft,
-                        padding: EdgeInsets.only(left: 4.0),
-                        child: Text(
-                          labelX,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        width: 70, // Fixed width for the input field
-                        height: 40,
-                        child: TextField(
-                          style: TextStyle(color: Colors.black),
-                          cursorColor: Colors.black,
-                          keyboardType: TextInputType.number,
-                          textAlign: TextAlign.center,
-                          controller: _textControllers[index * 2],
-                          decoration: InputDecoration(
-                            fillColor: Colors.white,
-                            labelText: '',
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.black),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.black), // Черная рамка при фокусировке
-                            ),
-                            contentPadding: EdgeInsets.symmetric(horizontal: 15), // Отступы по вертикали
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 10),
-                      Container(
-                        width: 30,
-                        alignment: Alignment.centerLeft,
-                        padding: EdgeInsets.only(left: 4.0),
-                        child: Text(
-                          labelY,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        width: 70, // Fixed width for the input field
-                        height: 40,
-                        child: TextField(
-                          style: TextStyle(color: Colors.black),
-                          cursorColor: Colors.black,
-                          textAlign: TextAlign.center,
-                          controller: _textControllers[index * 2 + 1],
-                          decoration: InputDecoration(
-                            labelText: '',
-                            contentPadding: EdgeInsets.symmetric(vertical: 13),
-                            border: InputBorder.none,
-                          ),
-                        ),
-                      ),
-                    ],
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 10.0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                // Метка для X
+                Container(
+                  width: 30,
+                  alignment: Alignment.centerLeft,
+                  padding: EdgeInsets.only(left: 4.0),
+                  child: Text(
+                    labelX,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.black,
+                    ),
                   ),
-                );
-              }),
+                ),
+                // Поле ввода для X
+                SizedBox(
+                  height: 40,
+                  width: 70,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Color(0xFFDDFFE4), // Цвет фона
+                      borderRadius: BorderRadius.circular(10), // Скругление углов
+                      border: Border.all(
+                        color: Color(0x65656587), // Цвет рамки
+                        width: 1, // Ширина рамки
+                      ),
+                    ),
+                    child: TextField(
+                      style: TextStyle(color: Colors.black),
+                      keyboardType: TextInputType.number,
+                      cursorColor: Colors.black,
+                      textAlign: TextAlign.center,
+                      controller: _textControllers[index],
+                      decoration: InputDecoration(
+                        fillColor: Colors.white,
+                        labelText: '',
+                        border: InputBorder.none, // Убираем стандартную рамку
+                        contentPadding: EdgeInsets.symmetric(vertical: 15, horizontal: 15), // Отступы
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 10),
+                // Метка для Y
+                Container(
+                  width: 30,
+                  alignment: Alignment.centerLeft,
+                  padding: EdgeInsets.only(left: 4.0),
+                  child: Text(
+                    labelY,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+                // Поле ввода для Y
+                SizedBox(
+                  height: 40,
+                  width: 70,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Color(0xFFDDFFE4), // Цвет фона
+                      borderRadius: BorderRadius.circular(10), // Скругление углов
+                      border: Border.all(
+                        color: Color(0x65656587), // Цвет рамки
+                        width: 1, // Ширина рамки
+                      ),
+                    ),
+                    child: TextField(
+                      style: TextStyle(color: Colors.black),
+                      keyboardType: TextInputType.number,
+                      cursorColor: Colors.black,
+                      textAlign: TextAlign.center,
+                      controller: _textControllers[index + colCount],
+                      decoration: InputDecoration(
+                        fillColor: Colors.white,
+                        labelText: '',
+                        border: InputBorder.none, // Убираем стандартную рамку
+                        contentPadding: EdgeInsets.symmetric(vertical: 15, horizontal: 15), // Отступы
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-        ),
+          );
+        }),
       ),
+    ),
+  ),
+),
       SizedBox(height: 20), // Отступ перед кнопкой
-      OkButton(Hand), // Вставляем виджет OkButton
+      showOkButton(handEnter), // Вставляем виджет OkButton
       SizedBox(height: 20), // Отступ после кнопки
     ],
   ),
 ],
 
-                  if (HandCircle) ...[
+                  if (handCircle) ...[
   Column(
     children: [
       Container(
@@ -1249,28 +1300,32 @@ Widget _buildGreenWidget(int index) {
                       ),
                       // Поле ввода
                       SizedBox(
-                        width: 70, // Фиксированная ширина для поля ввода
-                        height: 40,
-                        child: TextField(
-                          keyboardType: TextInputType.number,
-                          style: TextStyle(color: Colors.black),
-                          cursorColor: Colors.black,
-                          textAlign: TextAlign.center,
-                          controller: _textControllers[index],
-                          decoration: InputDecoration(
-                            fillColor: Colors.white,
-                            labelText: '',
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.black),
-                              borderRadius: BorderRadius.circular(10),
+                          height: 40,
+                          width: 70,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Color(0xFFDDFFE4), // Цвет фона
+                              borderRadius: BorderRadius.circular(10), // Скругление углов
+                              border: Border.all(
+                                color: Color(0x65656587), // Цвет рамки
+                                width: 1, // Ширина рамки
+                              ),
                             ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.black), // Черная рамка при фокусировке
+                            child: TextField(
+                              style: TextStyle(color: Colors.black),
+                              keyboardType: TextInputType.number,
+                              cursorColor: Colors.black,
+                              textAlign: TextAlign.center,
+                              controller: _textControllers[index],
+                              decoration: InputDecoration(
+                                fillColor: Colors.white,
+                                labelText: '',
+                                border: InputBorder.none, // Убираем стандартную рамку
+                                contentPadding: EdgeInsets.symmetric(vertical: 15, horizontal: 15), // Отступы по вертикали
+                              ),
                             ),
-                            contentPadding: EdgeInsets.symmetric(horizontal: 15),
                           ),
                         ),
-                      ),
                     ],
                   ),
                 );
@@ -1280,7 +1335,7 @@ Widget _buildGreenWidget(int index) {
         ),
       ),
       SizedBox(height: 20), // Отступ перед кнопкой
-      OkButton(Hand), // Вставляем виджет OkButton
+      showOkButton(handEnter), // Вставляем виджет OkButton
       SizedBox(height: 15), // Отступ после кнопки
     ],
   ),
@@ -1293,27 +1348,31 @@ Widget _buildGreenWidget(int index) {
                       top: 85,
                       left: 25,
                       child: Visibility(
-                        visible: (wayEnter == 'Файл формата' && formHist == 'График корреляции' && _isLastWidget) || (wayEnter == 'Файл формата' && formHist == 'Гистограмма' && _isLastWidget) || (!_isWidgetsVisible && !_isLastWidget) || (wayEnter == 'Файл формата' && formHist == 'Круговая диаграмма' && !_isWidgetsVisible) ? true : false,
-                        child: Container(
-                          width: 250,
+                        visible: (wayEnter == 'Файл формата' && formHist == 'График корреляции' && isLastWidget) || (wayEnter == 'Файл формата' && formHist == 'Гистограмма' && isLastWidget) || (!isWidgetsVisible && !isLastWidget) || (wayEnter == 'Файл формата' && formHist == 'Круговая диаграмма' && !isWidgetsVisible) ? true : false,
+                        child: SizedBox(
                           height: 40,
-                          decoration: BoxDecoration(
-                            color: Color(0xFFDDFFE4),
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(
-                              color: Color(0x65656587),
-                              width: 1,
+                          width: 250,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Color(0xFFDDFFE4), // Цвет фона
+                              borderRadius: BorderRadius.circular(10), // Скругление углов
+                              border: Border.all(
+                                color: Color(0x65656587), // Цвет рамки
+                                width: 1, // Ширина рамки
+                              ),
                             ),
-                          ),
-                          child: TextField(
-                            style: TextStyle(color: Colors.black),
-                            textAlign: TextAlign.center,
-                            cursorColor: Colors.black,
-                            controller: firstController,
-                            decoration: InputDecoration(
-                              labelText: '',
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.symmetric(vertical: 13), // Отступы по вертикали
+                            child: TextField(
+                              style: TextStyle(color: Colors.black),
+                              keyboardType: TextInputType.number,
+                              cursorColor: Colors.black,
+                              textAlign: TextAlign.center,
+                              controller: firstController,
+                              decoration: InputDecoration(
+                                fillColor: Colors.white,
+                                labelText: '',
+                                border: InputBorder.none, // Убираем стандартную рамку
+                                contentPadding: EdgeInsets.symmetric(vertical: 15, horizontal: 15), // Отступы по вертикали
+                              ),
                             ),
                           ),
                         ),
@@ -1323,27 +1382,31 @@ Widget _buildGreenWidget(int index) {
                       top: 185,
                       left: 25,
                       child: Visibility(
-                        visible: (wayEnter == 'Файл формата' && formHist == 'График корреляции' && _isLastWidget) || (!_isWidgetsVisible && formHist != 'Гистограмма' && !_isLastWidget) || (wayEnter == 'Файл формата' && formHist == 'Круговая диаграмма' && !_isWidgetsVisible)? true : false,
-                        child: Container(
-                          width: 250,
+                        visible: (wayEnter == 'Файл формата' && formHist == 'График корреляции' && isLastWidget) || (!isWidgetsVisible && formHist != 'Гистограмма' && !isLastWidget) || (wayEnter == 'Файл формата' && formHist == 'Круговая диаграмма' && !isWidgetsVisible)? true : false,
+                        child: SizedBox(
                           height: 40,
-                          decoration: BoxDecoration(
-                            color: Color(0xFFDDFFE4),
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(
-                              color: Color(0x65656587),
-                              width: 1,
+                          width: 250,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Color(0xFFDDFFE4), // Цвет фона
+                              borderRadius: BorderRadius.circular(10), // Скругление углов
+                              border: Border.all(
+                                color: Color(0x65656587), // Цвет рамки
+                                width: 1, // Ширина рамки
+                              ),
                             ),
-                          ),
-                          child: TextField(
-                            style: TextStyle(color: Colors.black),
-                            textAlign: TextAlign.center,
-                            cursorColor: Colors.black,
-                            controller: secondController,
-                            decoration: InputDecoration(
-                              labelText: '',
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.symmetric(vertical: 13), // Отступы по вертикали
+                            child: TextField(
+                              style: TextStyle(color: Colors.black),
+                              keyboardType: TextInputType.number,
+                              cursorColor: Colors.black,
+                              textAlign: TextAlign.center,
+                              controller: firstController,
+                              decoration: InputDecoration(
+                                fillColor: Colors.white,
+                                labelText: '',
+                                border: InputBorder.none, // Убираем стандартную рамку
+                                contentPadding: EdgeInsets.symmetric(vertical: 15, horizontal: 15), // Отступы по вертикали
+                              ),
                             ),
                           ),
                         ),
@@ -1353,7 +1416,7 @@ Widget _buildGreenWidget(int index) {
                       top: 25, // Положение сверху
                       left: 40, // Положение слева
                       child: Visibility(
-                        visible: (wayEnter == 'Файл формата' && formHist == 'График корреляции' && _isLastWidget) || (wayEnter == 'Файл формата' && formHist == 'Гистограмма' && _isLastWidget) || (!_isWidgetsVisible && !_isLastWidget) || (wayEnter == 'Файл формата' && formHist == 'Круговая диаграмма' && !_isWidgetsVisible) ? true : false,
+                        visible: (wayEnter == 'Файл формата' && formHist == 'График корреляции' && isLastWidget) || (wayEnter == 'Файл формата' && formHist == 'Гистограмма' && isLastWidget) || (!isWidgetsVisible && !isLastWidget) || (wayEnter == 'Файл формата' && formHist == 'Круговая диаграмма' && !isWidgetsVisible) ? true : false,
                         child: SizedBox(
                           width: 218, // Ширина
                           height: 37, // Высота
@@ -1380,7 +1443,7 @@ Widget _buildGreenWidget(int index) {
                       top: 130, // Положение сверху
                       left: 40, // Положение слева
                       child: Visibility(
-                        visible: (wayEnter == 'Файл формата' && formHist == 'График корреляции' && _isLastWidget) || (!_isWidgetsVisible && formHist != 'Гистограмма' && !_isLastWidget) || (wayEnter == 'Файл формата' && formHist == 'Круговая диаграмма' && !_isWidgetsVisible) ? true : false,
+                        visible: (wayEnter == 'Файл формата' && formHist == 'График корреляции' && isLastWidget) || (!isWidgetsVisible && formHist != 'Гистограмма' && !isLastWidget) || (wayEnter == 'Файл формата' && formHist == 'Круговая диаграмма' && !isWidgetsVisible) ? true : false,
                         child: SizedBox(
                           width: 218, // Ширина
                           height: 37, // Высота
@@ -1399,9 +1462,9 @@ Widget _buildGreenWidget(int index) {
                         ),
                       ),
                     ),
-                    if ((HandHist && !_isLastWidget) || (wayEnter == 'Файл формата' && formHist == 'Гистограмма' && _isLastWidget)) ... [
+                    if ((handHist && !isLastWidget) || (wayEnter == 'Файл формата' && formHist == 'Гистограмма' && isLastWidget)) ... [
                     Positioned(
-                          bottom: HandHist ? 65 : 125,
+                          bottom: handHist ? 65 : 125,
                           right: 40,
                           child: Row(
                             children: [
@@ -1424,24 +1487,32 @@ Widget _buildGreenWidget(int index) {
                                     focusedBorder: OutlineInputBorder(
                                       borderSide: BorderSide(color: Colors.black), // Черная рамка при фокусировке
                                     ),
-                                    contentPadding: EdgeInsets.symmetric(horizontal: 15), // Отступы по вертикали
+                                    contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 4), // Отступы по вертикали
                                     ),
-                                  onChanged: (value) { ////////////Артему
-                                    colCount = int.parse(value);
+                                  onChanged: (value) {
+                                    colCount = 0;
+                                    if (int.tryParse(value) != null) {
+                                      colCount = int.parse(value);
+                                    }
+                                    else {
+                                      colCount = 0;
+                                    }
                                   },
                                 ),
                               ),
                             ],
                           ),
                         ),
+                    ],
+                    if (handHist && !isLastWidget) ... [
                         Positioned(
                           bottom: 15,
                           right: 25,
-                          child: OkButton(Hand),
+                          child: showOkButton(handEnter),
                         ),
                     ],
                   ],
-                    if (HandCorel && !_isLastWidget) ... [
+                    if (handCorel && !isLastWidget) ... [
                       Positioned(
                           bottom: 55,
                           right: 40,
@@ -1466,10 +1537,16 @@ Widget _buildGreenWidget(int index) {
                                     focusedBorder: OutlineInputBorder(
                                       borderSide: BorderSide(color: Colors.black), // Черная рамка при фокусировке
                                     ),
-                                    contentPadding: EdgeInsets.symmetric(horizontal: 15), // Отступы по вертикали
+                                    contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 4), // Отступы по вертикали
                                     ),
-                                  onChanged: (value) { ////////////Артему
-                                    inputValue = value;
+                                  onChanged: (value) { 
+                                    colCount = 0;
+                                    if (int.tryParse(value) != null) {
+                                    colCount = int.parse(value);
+                                  }
+                                  else {
+                                    colCount = 0;
+                                  }
                                   },
                                 ),
                               ),
@@ -1478,15 +1555,15 @@ Widget _buildGreenWidget(int index) {
                         ),
                     ],
                   //ок
-                    if (!_isWidgetsVisible && _isLastWidget && (HandCircle && HandHist && HandCorel)) ... [
-                      OkButton(Hand)
+                    if (!isWidgetsVisible && isLastWidget && (handCircle && handHist && handCorel)) ... [
+                      showOkButton(handEnter)
                     ],
                     //далее
                     Positioned(
                       bottom: 15,
                       right: 25,
                       child: Visibility(
-                        visible: !_isWidgetsVisible && !_isLastWidget ? true : false,
+                        visible: !isWidgetsVisible && !isLastWidget ? true : false,
                       child: SizedBox(
                         width: 120,
                         height: 30,
@@ -1495,33 +1572,37 @@ Widget _buildGreenWidget(int index) {
                             backgroundColor: Color(0xFF8FFF9A),
                           ),
                           onPressed: () {
-                            if (inputValue.isNotEmpty) {
-                              colCount = int.parse(inputValue);
-                              setState(() {
-                              _isWidgetsVisible = false;
-                              
-                              if (wayEnter == 'Ручной ввод' && formHist == 'Круговая диаграмма') {
+                            if (colCount != 0) {
+                              if (colCount > 10) {
+                                showErrorCount();
+                              }
+                              else {
+                                setState(() {
+                                isWidgetsVisible = false;
+                                
+                                if (wayEnter == 'Ручной ввод' && formHist == 'Круговая диаграмма') {
+                                  dialogWidth = 300;
+                                  dialogHeight = 480;
+                                  handCircle = true;
+                                  isLastWidget = true;
+                                  }
+                                if (wayEnter == 'Ручной ввод' && formHist == 'Гистограмма') {
                                 dialogWidth = 300;
-                                dialogHeight = 480;
-                                HandCircle = true;
-                                _isLastWidget = true;
+                                dialogHeight = 320;
+                                handHist = true;
+                                isLastWidget = true;
                                 }
-                              if (wayEnter == 'Ручной ввод' && formHist == 'Гистограмма') {
-                              dialogWidth = 300;
-                              dialogHeight = 320;
-                              HandHist = true;
-                              _isLastWidget = true;
+                                if (wayEnter == 'Ручной ввод' && formHist == 'График корреляции') {
+                                dialogWidth = 300;
+                                dialogHeight = 310;
+                                handCorel = true;
+                                isLastWidget = true;
+                                }
+                                });
                               }
-                              if (wayEnter == 'Ручной ввод' && formHist == 'График корреляции') {
-                              dialogWidth = 300;
-                              dialogHeight = 310;
-                              HandCorel = true;
-                              _isLastWidget = true;
-                              }
-                              });
                             }
                             else {
-                              ErrorWindow();
+                              showErrorWindow();
                             }
                             
                           },
@@ -1533,7 +1614,7 @@ Widget _buildGreenWidget(int index) {
                       ),
                     ),
                     ),
-                    if (!_isWidgetsVisible) ... [
+                    if (!isWidgetsVisible) ... [
                       if (wayEnter == 'Файл формата') ...[
                         Positioned(
                           bottom: 55,
@@ -1552,7 +1633,7 @@ Widget _buildGreenWidget(int index) {
                                     a.openImageFile(formHist);
                                   }
                                 });
-                                _isLastWidget = true;
+                                isLastWidget = true;
                               },
                               child: Text(
                                 'Выбрать файл',
@@ -1564,14 +1645,14 @@ Widget _buildGreenWidget(int index) {
                         Positioned(
                           bottom: 15,
                           right: 25,
-                          child: OkButton(Hand),
+                          child: showOkButton(handEnter),
                         ),
                       ] else if (formHist == 'Круговая диаграмма') ...[
                         Positioned(
                           bottom: 55,
                           right: 40,
                           child: Visibility(
-                        visible: _isLastWidget ? false : true,
+                        visible: isLastWidget ? false : true,
                           child: Row(
                             children: [
                               Text(
@@ -1593,10 +1674,16 @@ Widget _buildGreenWidget(int index) {
                                     focusedBorder: OutlineInputBorder(
                                       borderSide: BorderSide(color: Colors.black), // Черная рамка при фокусировке
                                     ),
-                                    contentPadding: EdgeInsets.symmetric(horizontal: 15), // Отступы по вертикали
+                                    contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 4), // Отступы по вертикали
                                     ),
                                   onChanged: (value) {
-                                    inputValue = value;
+                                    colCount = 0;
+                                    if (int.tryParse(value) != null) {
+                                    colCount = int.parse(value);
+                                  }
+                                  else {
+                                    colCount = 0;
+                                  }
                                   },
                                 ),
                               ),
