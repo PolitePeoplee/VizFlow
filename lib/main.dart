@@ -410,7 +410,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     print(jsonData); // Для проверки выведем в консоль
   }
 Widget _buildGreenWidget(int index) {
-    if(chartsData[index][1] == "Файл формата")
+    if(chartsData[index][1] == "Файл формата .xlsx")
       {
         handData.add([]);
         filesData.add(a.data);
@@ -426,7 +426,7 @@ Widget _buildGreenWidget(int index) {
         onTap: () {
                   if(chartsData[index][0] == "Гистограмма")
                   {
-                    if(chartsData[index][1] == "Файл формата")
+                    if(chartsData[index][1] == "Файл формата .xlsx")
                     {
                       gistData = [];
                       fillGistDataFile(index);
@@ -450,7 +450,7 @@ Widget _buildGreenWidget(int index) {
                   }
                   else if(chartsData[index][0] == "Круговая диаграмма")
                   {
-                    if(chartsData[index][1] == "Файл формата")
+                    if(chartsData[index][1] == "Файл формата .xlsx")
                     {
                       pieData = [];
                       fillPieDataFile(index);
@@ -474,7 +474,7 @@ Widget _buildGreenWidget(int index) {
                   }
                   else if(chartsData[index][0] == "График корреляции")
                   {
-                    if(chartsData[index][1] == "Файл формата")
+                    if(chartsData[index][1] == "Файл формата .xlsx")
                     {
                       LRData = [];
                       fillLRDataFile(index);
@@ -781,7 +781,7 @@ Widget _buildGreenWidget(int index) {
                                 dialogWidth = 307;
                                 isWidgetsVisible = false;
                                 if (formHist == 'Круговая диаграмма') {
-                                if (wayEnter == 'Файл формата') {
+                                if (wayEnter == 'Файл формата .xlsx') {
                                   isLastWidget = true;
                                 }
                                 else {
@@ -821,7 +821,7 @@ Widget _buildGreenWidget(int index) {
                             });
                             },
                           child: Text(
-                            'Далее!',
+                            'Далее',
                             style: TextStyle(color: Colors.black),
                           ),
                         ),
@@ -992,7 +992,7 @@ Widget _buildGreenWidget(int index) {
                         ),
                         child: ListView(
                           children: [
-                            _buildFileSourceItem('Файл формата', setState),
+                            _buildFileSourceItem('Файл формата .xlsx', setState),
                             _buildFileSourceItem('Ручной ввод', setState),
                           ],
                         ),
@@ -1343,12 +1343,12 @@ Widget _buildGreenWidget(int index) {
 
                   
                   ///////////////////////////////////////////////////////////////////////////
-                  if (wayEnter == 'Файл формата' || formHist != 'Круговая диаграмма') ...[
+                  if (wayEnter == 'Файл формата .xlsx' || formHist != 'Круговая диаграмма') ...[
                     Positioned(
                       top: 85,
                       left: 25,
                       child: Visibility(
-                        visible: (wayEnter == 'Файл формата' && formHist == 'График корреляции' && isLastWidget) || (wayEnter == 'Файл формата' && formHist == 'Гистограмма' && isLastWidget) || (!isWidgetsVisible && !isLastWidget) || (wayEnter == 'Файл формата' && formHist == 'Круговая диаграмма' && !isWidgetsVisible) ? true : false,
+                        visible: (wayEnter == 'Файл формата .xlsx' && formHist == 'График корреляции' && isLastWidget) || (wayEnter == 'Файл формата .xlsx' && formHist == 'Гистограмма' && isLastWidget) || (!isWidgetsVisible && !isLastWidget) || (wayEnter == 'Файл формата .xlsx' && formHist == 'Круговая диаграмма' && !isWidgetsVisible) ? true : false,
                         child: SizedBox(
                           height: 40,
                           width: 250,
@@ -1382,7 +1382,7 @@ Widget _buildGreenWidget(int index) {
                       top: 185,
                       left: 25,
                       child: Visibility(
-                        visible: (wayEnter == 'Файл формата' && formHist == 'График корреляции' && isLastWidget) || (!isWidgetsVisible && formHist != 'Гистограмма' && !isLastWidget) || (wayEnter == 'Файл формата' && formHist == 'Круговая диаграмма' && !isWidgetsVisible)? true : false,
+                        visible: (wayEnter == 'Файл формата .xlsx' && formHist == 'График корреляции' && isLastWidget) || (!isWidgetsVisible && formHist != 'Гистограмма' && !isLastWidget) || (wayEnter == 'Файл формата .xlsx' && formHist == 'Круговая диаграмма' && !isWidgetsVisible)? true : false,
                         child: SizedBox(
                           height: 40,
                           width: 250,
@@ -1416,7 +1416,7 @@ Widget _buildGreenWidget(int index) {
                       top: 25, // Положение сверху
                       left: 40, // Положение слева
                       child: Visibility(
-                        visible: (wayEnter == 'Файл формата' && formHist == 'График корреляции' && isLastWidget) || (wayEnter == 'Файл формата' && formHist == 'Гистограмма' && isLastWidget) || (!isWidgetsVisible && !isLastWidget) || (wayEnter == 'Файл формата' && formHist == 'Круговая диаграмма' && !isWidgetsVisible) ? true : false,
+                        visible: (wayEnter == 'Файл формата .xlsx' && formHist == 'График корреляции' && isLastWidget) || (wayEnter == 'Файл формата .xlsx' && formHist == 'Гистограмма' && isLastWidget) || (!isWidgetsVisible && !isLastWidget) || (wayEnter == 'Файл формата .xlsx' && formHist == 'Круговая диаграмма' && !isWidgetsVisible) ? true : false,
                         child: SizedBox(
                           width: 218, // Ширина
                           height: 37, // Высота
@@ -1443,7 +1443,7 @@ Widget _buildGreenWidget(int index) {
                       top: 130, // Положение сверху
                       left: 40, // Положение слева
                       child: Visibility(
-                        visible: (wayEnter == 'Файл формата' && formHist == 'График корреляции' && isLastWidget) || (!isWidgetsVisible && formHist != 'Гистограмма' && !isLastWidget) || (wayEnter == 'Файл формата' && formHist == 'Круговая диаграмма' && !isWidgetsVisible) ? true : false,
+                        visible: (wayEnter == 'Файл формата .xlsx' && formHist == 'График корреляции' && isLastWidget) || (!isWidgetsVisible && formHist != 'Гистограмма' && !isLastWidget) || (wayEnter == 'Файл формата .xlsx' && formHist == 'Круговая диаграмма' && !isWidgetsVisible) ? true : false,
                         child: SizedBox(
                           width: 218, // Ширина
                           height: 37, // Высота
@@ -1462,7 +1462,7 @@ Widget _buildGreenWidget(int index) {
                         ),
                       ),
                     ),
-                    if ((handHist && !isLastWidget) || (wayEnter == 'Файл формата' && formHist == 'Гистограмма' && isLastWidget)) ... [
+                    if ((handHist && !isLastWidget) || (wayEnter == 'Файл формата .xlsx' && formHist == 'Гистограмма' && isLastWidget)) ... [
                     Positioned(
                           bottom: handHist ? 65 : 125,
                           right: 40,
@@ -1615,7 +1615,7 @@ Widget _buildGreenWidget(int index) {
                     ),
                     ),
                     if (!isWidgetsVisible) ... [
-                      if (wayEnter == 'Файл формата') ...[
+                      if (wayEnter == 'Файл формата .xlsx') ...[
                         Positioned(
                           bottom: 55,
                           right: 60,
